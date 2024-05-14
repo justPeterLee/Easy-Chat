@@ -10,6 +10,7 @@ interface StandardInputProps {
 
   errorLabel?: string;
   isError?: boolean;
+  clearError?: () => void;
 
   value: string;
   onChange: (newValue: string) => void;
@@ -19,7 +20,7 @@ export function StandardInput(props: StandardInputProps) {
   const { label } = props;
   const { outClassName, innerClassName, labelClassName, inputClassName } =
     props;
-  const { errorLabel, isError } = props;
+  const { errorLabel, isError, clearError } = props;
   const { value, onChange } = props;
 
   const [isFocus, setIsFocus] = useState(false);
@@ -40,13 +41,18 @@ export function StandardInput(props: StandardInputProps) {
         </label>
         <input
           id="stand-input"
-          className={`bg-transparent border-2 border-gray-400 rounded  min-h-7 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 ${inputClassName}`}
+          className={`bg-transparent border-2 border-gray-400 rounded  min-h-7 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 ${inputClassName} ${
+            isError && "border-red-700"
+          }`}
           value={value}
           onChange={(e) => {
             onChange(e.currentTarget.value);
           }}
           onFocus={() => {
             setIsFocus(true);
+            if (clearError) {
+              clearError();
+            }
           }}
           onBlur={() => {
             setIsFocus(false);
