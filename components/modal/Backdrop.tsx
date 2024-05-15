@@ -1,14 +1,65 @@
 "use client";
 
-import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
-export function Modal({ children }: { children: ReactNode }) {
+export function Modal({
+  children,
+  onClose,
+  invisBack = false,
+  containerClassName,
+  modalClassName,
+}: {
+  children: ReactNode;
+  onClose?: () => void;
+  invisBack?: boolean;
+  containerClassName?: string;
+  modalClassName?: string;
+}) {
   return (
-    <>
-      <div className="h-screen w-screen bg-black absolute opacity-70"></div>
-      <div className="z-30 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-700 rounded p-3 text-gray-200">
-        {children}
+    <ModalPortal selector="#__modal">
+      <div
+        id="modal"
+        className={cn("z-20 absolute h-screen w-screen", containerClassName)}
+      >
+        <div
+          id="backdrop"
+          className={cn("h-screen w-screen bg-black absolute opacity-70", {
+            "bg-transparent": invisBack,
+          })}
+          onClick={() => {
+            if (onClose) onClose();
+          }}
+        ></div>
+        <div
+          id="modal-container"
+          className={cn(
+            "z-30 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-700 rounded p-5 pt-10 pb-10 text-gray-200",
+            modalClassName
+          )}
+        >
+          {children}
+        </div>
       </div>
-    </>
+    </ModalPortal>
   );
+}
+
+function ModalPortal({
+  children,
+  selector,
+}: {
+  children: ReactNode;
+  selector: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    ref.current = document.querySelector(selector);
+    setMounted(true);
+  }, [selector]);
+
+  if (mounted && ref.current) return createPortal(children, ref.current);
 }

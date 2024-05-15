@@ -1,9 +1,10 @@
 "use client";
 
 import { Modal } from "./Backdrop";
-import { StandardInput } from "../elements/Input";
+import { SelectPicture, StandardInput } from "../ui/Input";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { Button } from "../ui/Button";
 
 export const UserModal = () => {
   const [username, setUsername] = useState("");
@@ -34,6 +35,7 @@ export const UserModal = () => {
 
   return (
     <Modal>
+      <SelectPicture />
       <StandardInput
         label="username"
         value={username}
@@ -47,7 +49,9 @@ export const UserModal = () => {
         }}
         inputClassName="w-80"
       />
-      <button onClick={validateUsername}>create account</button>
+      <Button onClick={validateUsername} size={"full"}>
+        create account
+      </Button>
     </Modal>
   );
 };
