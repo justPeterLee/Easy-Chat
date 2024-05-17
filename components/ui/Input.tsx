@@ -29,9 +29,9 @@ export function StandardInput(props: StandardInputProps) {
   const [isFocus, setIsFocus] = useState(false);
 
   const labelAnimation = {
-    "text-base top-1/2 text-gray-400": !isFocus && !value,
+    "text-base top-1/2 text-slate-400": !isFocus && !value,
     "top-0 text-sm bg-slate-700 p-1 text-blue-500": isFocus,
-    "top-0 text-sm bg-slate-700 p-1 text-gray-400": value && !isFocus,
+    "top-0 text-sm bg-slate-700 p-1 text-slate-400": value && !isFocus,
   };
 
   return (
@@ -39,7 +39,7 @@ export function StandardInput(props: StandardInputProps) {
       id="outter-stand-input"
       className={`flex flex-col mb-4 relative ${outClassName}`}
     >
-      <div id="inner-stand-input" className={`relative m-1 ${innerClassName}`}>
+      <div id="inner-stand-input" className={`relative mt-3 ${innerClassName}`}>
         <label
           id="stand-label"
           htmlFor="stand-input"
@@ -53,7 +53,7 @@ export function StandardInput(props: StandardInputProps) {
         </label>
         <input
           id="stand-input"
-          className={`bg-transparent border-2 border-gray-400 rounded  min-h-7 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 ${inputClassName} ${
+          className={`bg-transparent border-2 border-slate-500 rounded  min-h-7 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 ${inputClassName} ${
             isError && "border-red-700"
           }`}
           value={value}
@@ -210,7 +210,7 @@ export function SelectPicture() {
   return (
     <div className="w-full flex justify-center items-center mb-10">
       <div
-        className="h-52 w-52 border-2 border-gray-400 rounded-full flex items-center justify-center transition duration-75 hover:cursor-pointer overflow-hidden hover:brightness-[.6]"
+        className="h-52 w-52 border-2 border-gray-400 rounded-full flex items-center justify-center transition duration-75 hover:cursor-pointer overflow-hidden hover:brightness-[.6] ring ring-slate-500 ring-offset-4 ring-offset-slate-700"
         onClick={() => {
           setIsFocus(true);
         }}
@@ -223,7 +223,9 @@ export function SelectPicture() {
       >
         <Image src={image} alt={"profile picture"} width={500} height={500} />
       </div>
-      {isHover && <p className="absolute ">change pic</p>}
+      {isHover && (
+        <p className="absolute select-none pointer-events-none">change pic</p>
+      )}
 
       {isFocus && (
         <SelectGrid

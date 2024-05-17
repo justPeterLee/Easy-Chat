@@ -1,7 +1,7 @@
 "use client";
 
 import { UserModal } from "@/components/modal/User-Modal";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -10,6 +10,15 @@ export default function Home() {
     <main>
       {!session && <UserModal />}
       {JSON.stringify(session)}
+      {session && (
+        <button
+          onClick={() => {
+            signOut();
+          }}
+        >
+          sign out
+        </button>
+      )}
     </main>
   );
 }
