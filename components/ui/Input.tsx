@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "../modal/Backdrop";
 import Image from "next/image";
 import { Button } from "./Button";
@@ -138,8 +138,9 @@ function SelectGrid({
           return (
             <PfpCard
               key={Math.random()}
+              imageKey={_key}
               imageData={pfpImages[_key]}
-              selected={isConsidered === pfpImages[_key].image}
+              selected={isConsidered === _key}
               setConsidered={(image) => {
                 setIsConsidered(image);
               }}
@@ -171,10 +172,12 @@ function SelectGrid({
 }
 
 function PfpCard({
+  imageKey,
   imageData,
   selected,
   setConsidered,
 }: {
+  imageKey: string;
   imageData: { image: string; alt: string };
   selected: boolean;
   setConsidered: (image: string) => void;
@@ -189,7 +192,7 @@ function PfpCard({
         s
       )}
       onClick={() => {
-        setConsidered(imageData.image);
+        setConsidered(imageKey);
       }}
     >
       <Image
@@ -203,9 +206,24 @@ function PfpCard({
   );
 }
 export function SelectPicture() {
+  const savedImage = localStorage.getItem("pfp");
+  const validImage = Object.keys(pfpImages);
+
   const [isFocus, setIsFocus] = useState(false);
   const [isHover, setIsHover] = useState(false);
-  const [image, setImage] = useState("/pfp/sunflower.webp");
+  const [imageTag, setImageTag] = useState(
+    savedImage
+      ? validImage.includes(savedImage)
+        ? savedImage
+        : "sunflower"
+      : "sunflower"
+  );
+
+  useEffect(() => {
+    if (!savedImage) {
+      localStorage.setItem("pfp", "sunflower");
+    }
+  }, []);
 
   return (
     <div className="w-full flex justify-center items-center mb-10">
@@ -221,7 +239,12 @@ export function SelectPicture() {
           setIsHover(false);
         }}
       >
-        <Image src={image} alt={"profile picture"} width={500} height={500} />
+        <Image
+          src={`/pfp/${imageTag}.webp`}
+          alt={"profile picture"}
+          width={500}
+          height={500}
+        />
       </div>
       {isHover && (
         <p className="absolute select-none pointer-events-none">change pic</p>
@@ -233,9 +256,10 @@ export function SelectPicture() {
             setIsFocus(false);
           }}
           setImage={(selectedImage) => {
-            setImage(selectedImage);
+            setImageTag(selectedImage);
+            localStorage.setItem("pfp", selectedImage);
           }}
-          selected={image}
+          selected={imageTag}
         />
       )}
     </div>
