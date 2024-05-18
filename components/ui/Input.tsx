@@ -29,9 +29,9 @@ export function StandardInput(props: StandardInputProps) {
   const [isFocus, setIsFocus] = useState(false);
 
   const labelAnimation = {
-    "text-base top-1/2 text-slate-400": !isFocus && !value,
-    "top-0 text-sm bg-slate-700 p-1 text-blue-500": isFocus,
-    "top-0 text-sm bg-slate-700 p-1 text-slate-400": value && !isFocus,
+    "text-base top-1/2 text-neutral-400": !isFocus && !value,
+    "top-0 text-sm bg-neutral-800 p-1 text-blue-500": isFocus,
+    "top-0 text-sm bg-neutral-800 p-1 text-neutral-400": value && !isFocus,
   };
 
   return (
@@ -53,7 +53,7 @@ export function StandardInput(props: StandardInputProps) {
         </label>
         <input
           id="stand-input"
-          className={`bg-transparent border-2 border-slate-500 rounded  min-h-7 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 ${inputClassName} ${
+          className={`bg-transparent border-2 border-neutral-500 rounded  min-h-7 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 ${inputClassName} ${
             isError && "border-red-700"
           }`}
           value={value}
@@ -183,7 +183,7 @@ function PfpCard({
   setConsidered: (image: string) => void;
 }) {
   const s = {
-    "ring ring-slate-300 ring-offset-4 ring-offset-slate-700": selected,
+    "ring ring-neutral-300 ring-offset-4 ring-offset-neutral-700": selected,
   };
   return (
     <div
@@ -223,12 +223,12 @@ export function SelectPicture() {
     if (!savedImage) {
       localStorage.setItem("pfp", "sunflower");
     }
-  }, []);
+  }, [savedImage]);
 
   return (
     <div className="w-full flex justify-center items-center mb-10">
       <div
-        className="h-52 w-52 border-2 border-gray-400 rounded-full flex items-center justify-center transition duration-75 hover:cursor-pointer overflow-hidden hover:brightness-[.6] ring ring-slate-500 ring-offset-4 ring-offset-slate-700"
+        className="h-52 w-52 border-2 border-neutral-400 rounded-full flex items-center justify-center transition duration-75 hover:cursor-pointer overflow-hidden hover:brightness-[.6] ring ring-neutral-500 ring-offset-4 ring-offset-neutral-700"
         onClick={() => {
           setIsFocus(true);
         }}

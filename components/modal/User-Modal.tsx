@@ -64,11 +64,11 @@ export const UserModal = () => {
   if (showModal) {
     return (
       <Modal modalClassName="">
-        <div className="text-center text-gray-400 text-lg mb-10">
+        <div className="text-center text-neutral-400 text-lg mb-10">
           <p>Create Account to Enter</p>
         </div>
         <SelectPicture />
-        <div className="flex justify-between text-sm text-gray-500">
+        <div className="flex justify-between text-sm text-neutral-500">
           <p>ID# {ServerSession.current.toLocaleUpperCase()}</p>
 
           <div className="flex justify-center items-center gap-2 pr-1">

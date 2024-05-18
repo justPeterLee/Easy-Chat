@@ -25,7 +25,7 @@ export function Modal({
       >
         <div
           id="backdrop"
-          className={cn("h-screen w-screen bg-black absolute opacity-70", {
+          className={cn("h-screen w-screen bg-black absolute opacity-40", {
             "bg-transparent": invisBack,
           })}
           onClick={() => {
@@ -35,7 +35,7 @@ export function Modal({
         <div
           id="modal-container"
           className={cn(
-            "z-30 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-700 rounded p-5 pt-10 pb-10 text-gray-200",
+            "z-30 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-neutral-800 rounded p-5 pt-10 pb-10 text-neutral-200",
             modalClassName
           )}
         >

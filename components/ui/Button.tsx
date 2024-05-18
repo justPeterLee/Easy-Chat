@@ -3,19 +3,19 @@ import { VariantProps, cva } from "class-variance-authority";
 import { ButtonHTMLAttributes, FC } from "react";
 
 const buttonVariation = cva(
-  "rounded text-gray-200 bg-slate-600 p-1 transition-all hover:bg-slate-800 duration-100",
+  "rounded text-neutral-200 bg-neutral-600 p-1 transition-all hover:bg-neutral-800 duration-100",
   {
     variants: {
       variant: {
         default: "",
-        bodered: "",
+        bodered: "bg-transparent border border-neutral-600",
         ghost: "bg-transparent",
       },
 
       size: {
         default: "px-2",
         sm: "",
-        lg: "",
+        lg: "px-5 py-3 min-h-16 min-w-48",
         full: "w-full h-10",
       },
 
