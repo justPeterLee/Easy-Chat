@@ -2,6 +2,7 @@
 
 import { SessionProvider } from "next-auth/react";
 import { ReactNode } from "react";
+import { UserModal } from "./modal/User-Modal";
 
 interface ProviderProps {
   children: ReactNode;
@@ -10,7 +11,10 @@ interface ProviderProps {
 export const Providers = ({ children }: ProviderProps) => {
   return (
     <>
-      <SessionProvider>{children}</SessionProvider>
+      <SessionProvider>
+        <UserModal />
+        {children}
+      </SessionProvider>
     </>
   );
 };
