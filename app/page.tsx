@@ -3,6 +3,7 @@
 import { signOut, useSession } from "next-auth/react";
 
 import { CreateGroupChat, GroupChatCard } from "@/components/GroupChat";
+import { CreateGroupChatModal } from "@/components/modal/GroupChatModal";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -14,6 +15,7 @@ export default function Home() {
       <GroupChatCard />
       <GroupChatCard />
       <GroupChatCard />
+      <CreateGroupChatModal />
     </main>
   );
 }

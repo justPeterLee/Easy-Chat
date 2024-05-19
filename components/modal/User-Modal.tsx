@@ -77,6 +77,7 @@ export const UserModal = () => {
           </div>
         </div>
         <StandardInput
+          keyTag={3}
           label="username"
           value={username}
           onChange={(newValue: string) => {

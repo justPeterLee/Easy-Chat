@@ -4,6 +4,9 @@ import { Modal } from "../modal/Backdrop";
 import Image from "next/image";
 import { Button } from "./Button";
 interface StandardInputProps {
+  keyTag: string | number;
+  value: string;
+  onChange: (newValue: string) => void;
   label: string;
 
   outClassName?: string;
@@ -15,21 +18,23 @@ interface StandardInputProps {
   isError?: boolean;
   clearError?: () => void;
 
-  value: string;
-  onChange: (newValue: string) => void;
+  isTextArea?: boolean;
 }
 
 export function StandardInput(props: StandardInputProps) {
-  const { label } = props;
+  const { label, keyTag } = props;
   const { outClassName, innerClassName, labelClassName, inputClassName } =
     props;
+  const { isTextArea } = props;
   const { errorLabel, isError, clearError } = props;
   const { value, onChange } = props;
 
   const [isFocus, setIsFocus] = useState(false);
 
   const labelAnimation = {
-    "text-base top-1/2 text-neutral-400": !isFocus && !value,
+    "text-base text-neutral-400": !isFocus && !value,
+    "top-1/3 text-neutral-400": isTextArea,
+    "text-base top-1/2": !isFocus && !value && !isTextArea,
     "top-0 text-sm bg-neutral-800 p-1 text-blue-500": isFocus,
     "top-0 text-sm bg-neutral-800 p-1 text-neutral-400": value && !isFocus,
   };
@@ -41,8 +46,8 @@ export function StandardInput(props: StandardInputProps) {
     >
       <div id="inner-stand-input" className={`relative mt-3 ${innerClassName}`}>
         <label
-          id="stand-label"
-          htmlFor="stand-input"
+          id={`stand-label-${keyTag}`}
+          htmlFor={`stand-input-${keyTag}`}
           className={cn(
             `absolute -translate-y-1/2 left-2 transition-all duration-75 ease-out`,
             labelAnimation,
@@ -51,25 +56,48 @@ export function StandardInput(props: StandardInputProps) {
         >
           {label}
         </label>
-        <input
-          id="stand-input"
-          className={`bg-transparent border-2 border-neutral-500 rounded  min-h-7 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 ${inputClassName} ${
-            isError && "border-red-700"
-          }`}
-          value={value}
-          onChange={(e) => {
-            onChange(e.currentTarget.value);
-          }}
-          onFocus={() => {
-            setIsFocus(true);
-            if (clearError) {
-              clearError();
-            }
-          }}
-          onBlur={() => {
-            setIsFocus(false);
-          }}
-        ></input>
+
+        {!isTextArea ? (
+          <input
+            id={`stand-input-${keyTag}`}
+            className={`bg-transparent border-2 border-neutral-500 rounded  min-h-7 min-w-60 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 ${inputClassName} ${
+              isError && "border-red-700"
+            }`}
+            value={value}
+            onChange={(e) => {
+              onChange(e.currentTarget.value);
+            }}
+            onFocus={() => {
+              setIsFocus(true);
+              if (clearError) {
+                clearError();
+              }
+            }}
+            onBlur={() => {
+              setIsFocus(false);
+            }}
+          ></input>
+        ) : (
+          <textarea
+            id={`stand-input-${keyTag}`}
+            className={`bg-transparent border-2 border-neutral-500 rounded  min-h-7 min-w-60 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 resize-none ${inputClassName} ${
+              isError && "border-red-700"
+            }`}
+            value={value}
+            onChange={(e) => {
+              onChange(e.currentTarget.value);
+            }}
+            onFocus={() => {
+              setIsFocus(true);
+              if (clearError) {
+                clearError();
+              }
+            }}
+            onBlur={() => {
+              setIsFocus(false);
+            }}
+          />
+        )}
       </div>
       {errorLabel &&
         (isError ? (
@@ -263,5 +291,40 @@ export function SelectPicture() {
         />
       )}
     </div>
+  );
+}
+
+interface InputProps {
+  label: string;
+  value: string;
+  onChange: (newValue: string) => void;
+
+  labelAnimation: { [key: string]: boolean };
+  labelClassName?: string;
+  inputClassName?: string;
+}
+export function TextArea(props: InputProps) {
+  return (
+    <>
+      <label
+        id="stand-label"
+        htmlFor="stand-input"
+        className={cn(
+          `absolute -translate-y-1/2 left-2 transition-all duration-75 ease-out`,
+          props.labelAnimation,
+          props.labelClassName
+        )}
+      >
+        {props.label}
+      </label>
+
+      <textarea
+        id="text-area"
+        value={props.value}
+        onChange={(e) => {
+          props.onChange(e.target.value);
+        }}
+      />
+    </>
   );
 }
