@@ -4,7 +4,7 @@ import { Modal } from "../modal/Backdrop";
 import Image from "next/image";
 import { Button } from "./Button";
 interface StandardInputProps {
-  keyTag: string | number;
+  id: string | number;
   value: string;
   onChange: (newValue: string) => void;
   label: string;
@@ -19,13 +19,15 @@ interface StandardInputProps {
   clearError?: () => void;
 
   isTextArea?: boolean;
+  disable?: boolean;
+  type?: "password" | "number";
 }
 
 export function StandardInput(props: StandardInputProps) {
-  const { label, keyTag } = props;
+  const { label, id } = props;
   const { outClassName, innerClassName, labelClassName, inputClassName } =
     props;
-  const { isTextArea } = props;
+  const { isTextArea, disable, type } = props;
   const { errorLabel, isError, clearError } = props;
   const { value, onChange } = props;
 
@@ -37,17 +39,22 @@ export function StandardInput(props: StandardInputProps) {
     "text-base top-1/2": !isFocus && !value && !isTextArea,
     "top-0 text-sm bg-neutral-800 p-1 text-blue-500": isFocus,
     "top-0 text-sm bg-neutral-800 p-1 text-neutral-400": value && !isFocus,
+    "opacity-30": disable,
   };
 
+  const inputClass = {
+    "border-red-700": isError,
+    "bg-white bg-opacity-30 brightness-50": disable,
+  };
   return (
     <div
       id="outter-stand-input"
-      className={`flex flex-col mb-4 relative ${outClassName}`}
+      className={`flex flex-col relative ${outClassName}`}
     >
-      <div id="inner-stand-input" className={`relative mt-3 ${innerClassName}`}>
+      <div id="inner-stand-input" className={`relative mt-4 ${innerClassName}`}>
         <label
-          id={`stand-label-${keyTag}`}
-          htmlFor={`stand-input-${keyTag}`}
+          id={`stand-label-${id}`}
+          htmlFor={`stand-input-${id}`}
           className={cn(
             `absolute -translate-y-1/2 left-2 transition-all duration-75 ease-out`,
             labelAnimation,
@@ -59,10 +66,12 @@ export function StandardInput(props: StandardInputProps) {
 
         {!isTextArea ? (
           <input
-            id={`stand-input-${keyTag}`}
-            className={`bg-transparent border-2 border-neutral-500 rounded  min-h-7 min-w-60 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 ${inputClassName} ${
-              isError && "border-red-700"
-            }`}
+            id={`stand-input-${id}`}
+            className={cn(
+              `bg-transparent border-2 border-neutral-500 rounded  min-h-7 min-w-60 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500`,
+              inputClass,
+              inputClassName
+            )}
             value={value}
             onChange={(e) => {
               onChange(e.currentTarget.value);
@@ -76,13 +85,17 @@ export function StandardInput(props: StandardInputProps) {
             onBlur={() => {
               setIsFocus(false);
             }}
+            type={type}
+            disabled={disable}
           ></input>
         ) : (
           <textarea
-            id={`stand-input-${keyTag}`}
-            className={`bg-transparent border-2 border-neutral-500 rounded  min-h-7 min-w-60 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 resize-none ${inputClassName} ${
-              isError && "border-red-700"
-            }`}
+            id={`stand-input-${id}`}
+            className={cn(
+              `bg-transparent border-2 border-neutral-500 rounded  min-h-7 min-w-60 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 resize-none`,
+              inputClass,
+              inputClassName
+            )}
             value={value}
             onChange={(e) => {
               onChange(e.currentTarget.value);
@@ -96,6 +109,7 @@ export function StandardInput(props: StandardInputProps) {
             onBlur={() => {
               setIsFocus(false);
             }}
+            disabled={disable}
           />
         )}
       </div>
