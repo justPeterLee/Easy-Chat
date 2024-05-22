@@ -1,21 +1,44 @@
 import { Modal } from "./Backdrop";
 import { SelectPicture, StandardInput } from "../ui/Input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/Button";
-export function CreateGroupChatModal() {
+
+export function CreateGroupChatModal({ onClose }: { onClose: () => void }) {
   const [chatSettings, setChatSetting] = useState({
     title: "",
     description: "",
     privacy: false,
     password: "",
   });
+
   return (
-    <Modal modalClassName="min-w-80">
+    <Modal modalClassName="min-w-80" onClose={onClose}>
       <div className="text-center text-neutral-400 text-lg mb-10">
         <p>Create a Chat</p>
       </div>
+
       <SelectPicture />
-      <div></div>
+      <div className="flex justify-between items-center text-sm text-neutral-400 ">
+        <span
+          className="flex flex-row gap-1 hover:cursor-pointer"
+          onClick={async () => {
+            await navigator.clipboard.writeText("generated url");
+          }}
+        >
+          <p>url:</p>
+          <p className="text-yellow-400">domain.com</p>
+        </span>
+
+        <span
+          className="flex flex-row gap-1 hover:cursor-pointer"
+          onClick={async () => {
+            await navigator.clipboard.writeText("generated code");
+          }}
+        >
+          <p>code:</p>
+          <p className="text-yellow-400">9and0mC0de</p>
+        </span>
+      </div>
       <StandardInput
         id={"chat-title"}
         inputClassName="w-full"

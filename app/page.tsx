@@ -11,11 +11,6 @@ export default function Home() {
   return (
     <main className="bg-neutral-800 h-screen w-screen p-10 grid grid-cols-[repeat(auto-fill,_minmax(12rem,_0px))] gap-4 auto-rows-[minmax(0,_4rem)]">
       <CreateGroupChat />
-      <GroupChatCard />
-      <GroupChatCard />
-      <GroupChatCard />
-      <GroupChatCard />
-      <CreateGroupChatModal />
     </main>
   );
 }

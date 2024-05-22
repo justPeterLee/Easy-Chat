@@ -90,7 +90,7 @@ export const UserModal = () => {
           }}
           inputClassName="w-80"
         />
-        <Button onClick={createAccount} size={"full"}>
+        <Button className={"mt-4"} onClick={createAccount} size={"full"}>
           create account
         </Button>
       </Modal>
