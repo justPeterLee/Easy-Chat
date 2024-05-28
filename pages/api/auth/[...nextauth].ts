@@ -38,6 +38,7 @@ const authOption: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+      console.log(token);
       token.picture = "tesst";
       return token;
     },

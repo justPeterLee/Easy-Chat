@@ -10,12 +10,15 @@ export function Modal({
   invisBack = false,
   containerClassName,
   modalClassName,
+  error,
 }: {
   children: ReactNode;
   onClose?: () => void;
   invisBack?: boolean;
   containerClassName?: string;
   modalClassName?: string;
+
+  error?: { error: boolean; errorLable: string };
 }) {
   return (
     <ModalPortal selector="#__modal">
@@ -40,6 +43,12 @@ export function Modal({
           )}
         >
           {children}
+
+          {error && error.error && (
+            <p className="absolute bottom-2 text-xs text-red-500">
+              *{error.errorLable}
+            </p>
+          )}
         </div>
       </div>
     </ModalPortal>

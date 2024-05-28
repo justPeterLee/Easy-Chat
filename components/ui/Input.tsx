@@ -3,20 +3,19 @@ import { useEffect, useState } from "react";
 import { Modal } from "../modal/Backdrop";
 import Image from "next/image";
 import { Button } from "./Button";
+import { RegisterOptions, UseFormRegister } from "react-hook-form";
 interface StandardInputProps {
-  id: string | number;
+  id: string;
   value: string;
-  onChange: (newValue: string) => void;
   label: string;
+  register: UseFormRegister<any>;
+  registerConfig?: RegisterOptions;
+  error?: string;
 
   outClassName?: string;
   innerClassName?: string;
   labelClassName?: string;
   inputClassName?: string;
-
-  errorLabel?: string;
-  isError?: boolean;
-  clearError?: () => void;
 
   isTextArea?: boolean;
   disable?: boolean;
@@ -28,22 +27,24 @@ export function StandardInput(props: StandardInputProps) {
   const { outClassName, innerClassName, labelClassName, inputClassName } =
     props;
   const { isTextArea, disable, type } = props;
-  const { errorLabel, isError, clearError } = props;
-  const { value, onChange } = props;
+  const { error } = props;
+  const { value } = props;
+  const { register, registerConfig } = props;
 
   const [isFocus, setIsFocus] = useState(false);
 
   const labelAnimation = {
     "text-base text-neutral-400": !isFocus && !value,
-    "top-1/3 text-neutral-400": isTextArea,
+    "top-[21px] text-neutral-400": isTextArea,
     "text-base top-1/2": !isFocus && !value && !isTextArea,
     "top-0 text-sm bg-neutral-800 p-1 text-blue-500": isFocus,
     "top-0 text-sm bg-neutral-800 p-1 text-neutral-400": value && !isFocus,
+    "text-red-700": error && !isFocus,
     "opacity-30": disable,
   };
 
   const inputClass = {
-    "border-red-700": isError,
+    "border-red-700": error,
     "bg-white bg-opacity-30 brightness-50": disable,
   };
   return (
@@ -66,21 +67,15 @@ export function StandardInput(props: StandardInputProps) {
 
         {!isTextArea ? (
           <input
+            {...register(id, registerConfig)}
             id={`stand-input-${id}`}
             className={cn(
               `bg-transparent border-2 border-neutral-500 rounded  min-h-7 min-w-60 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500`,
               inputClass,
               inputClassName
             )}
-            value={value}
-            onChange={(e) => {
-              onChange(e.currentTarget.value);
-            }}
             onFocus={() => {
               setIsFocus(true);
-              if (clearError) {
-                clearError();
-              }
             }}
             onBlur={() => {
               setIsFocus(false);
@@ -90,21 +85,15 @@ export function StandardInput(props: StandardInputProps) {
           ></input>
         ) : (
           <textarea
+            {...register(id, registerConfig)}
             id={`stand-input-${id}`}
             className={cn(
               `bg-transparent border-2 border-neutral-500 rounded  min-h-7 min-w-60 p-2 outline-none transition-all duration-75 ease-out focus:border-blue-500 resize-none`,
               inputClass,
               inputClassName
             )}
-            value={value}
-            onChange={(e) => {
-              onChange(e.currentTarget.value);
-            }}
             onFocus={() => {
               setIsFocus(true);
-              if (clearError) {
-                clearError();
-              }
             }}
             onBlur={() => {
               setIsFocus(false);
@@ -113,17 +102,15 @@ export function StandardInput(props: StandardInputProps) {
           />
         )}
       </div>
-      {errorLabel &&
-        (isError ? (
-          <label
-            htmlFor="stand-input"
-            className="text-red-700 text-xs absolute -bottom-4"
-          >
-            *{errorLabel}
-          </label>
-        ) : (
-          <></>
-        ))}
+
+      {error && (
+        <label
+          htmlFor="stand-input"
+          className="text-red-700 text-xs absolute -bottom-4 right-0"
+        >
+          *{error}
+        </label>
+      )}
     </div>
   );
 }
