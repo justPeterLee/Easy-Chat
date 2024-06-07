@@ -1,19 +1,34 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { db } from "@/lib/redis";
+import { getServerSession } from "next-auth";
+import { authOption } from "@/pages/api/auth/[...nextauth]";
 
 export const POST = async (req: NextRequest) => {
   try {
+    const session = await getServerSession(authOption);
+    if (!session) {
+      return new Response("unathorized", { status: 401 });
+    }
+
     const body = await req.json();
-    const { title, description, pricacy, password, code } = body;
+    const { title, description, privacy, password, code } = body;
+    const { id } = session.user;
 
+    // add to chat list
+    await db.sadd(`chatlist:${id}`, code);
+
+    // create public info
     const chatId = await db.incr("chat_id");
-    const chatByCode = `chat:code:${code}`;
+    await db.hset(`chat:public:${code}`, { title, chatId });
 
-    // create chat public info
-
-    // create chat private info
-
-    console.log(body);
+    // create private info
+    await db.hset(`chat:${chatId}`, {
+      title,
+      description,
+      privacy,
+      password: password ? password : "",
+      code,
+    });
 
     return new Response();
   } catch (err) {

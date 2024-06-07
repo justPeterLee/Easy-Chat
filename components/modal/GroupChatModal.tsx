@@ -22,38 +22,24 @@ export function CreateGroupChatModal({ onClose }: { onClose: () => void }) {
   });
 
   const formData = watch();
+
   const customNanoId = customAlphabet(
     "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
     8
   );
   const ChatCode = useRef(customNanoId());
 
-  const [chatSettings, setChatSetting] = useState({
-    title: "",
-    description: "",
-    privacy: false,
-    password: "",
-  });
-
   const [error, setError] = useState(false);
 
   const createChat = async (data: CreateChat) => {
-    // valid title X
-    // valid password X
-    // generate code X
-    console.log("test");
     try {
-      // if (await validator()) return;
-      const allChatSetting = { ...chatSettings, code: ChatCode.current };
-
       const validatedChat = createChatValidator.parse(data);
+      await axios.post("/api/chat/create", {
+        ...validatedChat,
+        code: ChatCode.current,
+      });
 
-      console.log(validatedChat);
-      // await axios.post("/api/chat/create", {
-      //   ...chatSettings,
-      //   code: ChatCode.current,
-      // });
-
+      onClose();
       setError(false);
     } catch (err) {
       setError(true);
@@ -79,33 +65,6 @@ export function CreateGroupChatModal({ onClose }: { onClose: () => void }) {
     // chat settings
   };
 
-  // const validator = () => {
-  //   const proxyError = { ...error };
-  //   let isError = false;
-  //   if (!chatSettings.title.replace(/\s/g, "")) {
-  //     proxyError.title = true;
-  //     isError = true;
-  //   }
-
-  //   if (chatSettings.privacy) {
-  //     if (!chatSettings.password.replace(/\s/g, "")) {
-  //       proxyError.password = true;
-  //       isError = true;
-  //     }
-  //   } else {
-  //     proxyError.password = false;
-  //   }
-
-  //   proxyError.isError = isError;
-  //   setError(proxyError);
-
-  //   return isError;
-  // };
-
-  const onSubmit = (data: CreateChat) => {
-    console.log(data);
-  };
-
   return (
     <>
       <Modal
@@ -115,7 +74,7 @@ export function CreateGroupChatModal({ onClose }: { onClose: () => void }) {
         }}
         error={{ error: error, errorLable: "could not make chat" }}
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(createChat)}>
           <div className="text-center text-neutral-400 text-lg mb-10">
             <p>Create a Chat</p>
           </div>

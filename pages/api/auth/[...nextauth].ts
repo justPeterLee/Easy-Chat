@@ -6,7 +6,7 @@ import { db } from "@/lib/redis";
 
 import NextAuth from "next-auth/next";
 
-const authOption: NextAuthOptions = {
+export const authOption: NextAuthOptions = {
   adapter: UpstashRedisAdapter(db),
   session: {
     strategy: "jwt",
@@ -37,14 +37,12 @@ const authOption: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      console.log(token);
-      token.picture = "tesst";
-      return token;
-    },
+    // async jwt({ token, user }) {
+    //   return token;
+    // },
     async session({ token, session }) {
-      if (token && session.user) {
-        session.user.image = token.picture;
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
       }
       return session;
     },
