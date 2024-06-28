@@ -14,6 +14,14 @@ export const POST = async (req: NextRequest) => {
     const { title, description, privacy, password, code } = body;
     const { id } = session.user;
 
+    // create user list
+    const memeberId = await db.incr("memeber_id");
+    await db.zadd(`mem_list:${memeberId}`, { score: 3, member: `${id}` });
+
+    // create message list
+    const messageId = await db.incr("message_id");
+    // await db.xadd(`mem_list:${memeberId}`,{score:})
+
     // add to chat list
     await db.sadd(`chatlist:${id}`, code);
 
@@ -28,7 +36,11 @@ export const POST = async (req: NextRequest) => {
       privacy,
       password: password ? password : "",
       code,
+      memeberId: memeberId,
+      messageId: messageId,
     });
+
+    //
 
     return new Response();
   } catch (err) {

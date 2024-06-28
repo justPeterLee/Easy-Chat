@@ -115,7 +115,10 @@ export function StandardInput(props: StandardInputProps) {
   );
 }
 
-const pfpImages: { [key: string]: { image: string; alt: string } } = {
+interface imagesArray {
+  [key: string]: { image: string; alt: string };
+}
+export const pfpImages: imagesArray = {
   heart: {
     image: "/pfp/heart.webp",
     alt: "heart",
@@ -144,14 +147,16 @@ const pfpImages: { [key: string]: { image: string; alt: string } } = {
 
 function SelectGrid({
   onClose,
-  setImage,
+  setItem,
   selected,
+  items,
 }: {
   onClose: () => void;
-  setImage: (selectedImage: string) => void;
+  setItem: (selectedImage: any) => void;
   selected: string;
+  items: { [key: string]: any };
 }) {
-  const imageKeys = Object.keys(pfpImages);
+  const itemList = Object.keys(items);
   const [isConsidered, setIsConsidered] = useState(selected);
 
   return (
@@ -163,13 +168,13 @@ function SelectGrid({
     >
       <p className="text-2xl">Select an Image</p>
       <div className="grid grid-cols-3 gap-8">
-        {imageKeys.map((_key) => {
+        {itemList.map((_ItemKey) => {
           return (
             <PfpCard
               key={Math.random()}
-              imageKey={_key}
-              imageData={pfpImages[_key]}
-              selected={isConsidered === _key}
+              imageKey={_ItemKey}
+              imageData={pfpImages[_ItemKey]}
+              selected={isConsidered === _ItemKey}
               setConsidered={(image) => {
                 setIsConsidered(image);
               }}
@@ -189,7 +194,7 @@ function SelectGrid({
         <Button
           className="px-5"
           onClick={() => {
-            setImage(isConsidered);
+            setItem(isConsidered);
             onClose();
           }}
         >
@@ -234,23 +239,28 @@ function PfpCard({
     </div>
   );
 }
-export function SelectPicture() {
-  const savedImage = localStorage.getItem("pfp");
-  const validImage = Object.keys(pfpImages);
+export function SelectPicture({
+  images,
+  setImage,
+  local,
+}: {
+  images: imagesArray;
+  setImage?: (image: string) => void;
+  local?: string;
+}) {
+  const savedImage = local && localStorage.getItem(local);
+  const validImage = Object.keys(images);
 
   const [isFocus, setIsFocus] = useState(false);
   const [isHover, setIsHover] = useState(false);
-  const [imageTag, setImageTag] = useState(
-    savedImage
-      ? validImage.includes(savedImage)
-        ? savedImage
-        : "sunflower"
-      : "sunflower"
-  );
 
+  const [imageTag, setImageTag] = useState({
+    ...images[validImage[0]],
+    key: validImage[0],
+  });
   useEffect(() => {
-    if (!savedImage) {
-      localStorage.setItem("pfp", "sunflower");
+    if (!savedImage && local) {
+      localStorage.setItem(local, "sunflower");
     }
   }, [savedImage]);
 
@@ -269,8 +279,8 @@ export function SelectPicture() {
         }}
       >
         <Image
-          src={`/pfp/${imageTag}.webp`}
-          alt={"profile picture"}
+          src={imageTag.image}
+          alt={imageTag.alt}
           width={500}
           height={500}
         />
@@ -284,11 +294,18 @@ export function SelectPicture() {
           onClose={() => {
             setIsFocus(false);
           }}
-          setImage={(selectedImage) => {
-            setImageTag(selectedImage);
-            localStorage.setItem("pfp", selectedImage);
+          setItem={(selectedImage) => {
+            if (validImage.includes(selectedImage)) {
+              setImageTag({ ...images[selectedImage], key: selectedImage });
+              if (local) localStorage.setItem(local, selectedImage);
+
+              if (setImage) {
+                setImage(imageTag.image);
+              }
+            }
           }}
-          selected={imageTag}
+          selected={imageTag.key}
+          items={images}
         />
       )}
     </div>

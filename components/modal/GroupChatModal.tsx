@@ -1,6 +1,6 @@
 import { Modal } from "./Backdrop";
 import { SelectPicture, StandardInput } from "../ui/Input";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/Button";
 import { customAlphabet } from "nanoid";
 import axios, { AxiosError } from "axios";
@@ -8,9 +8,11 @@ import { CreateChat, createChatValidator } from "@/lib/validator";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { pfpImages } from "../ui/Input";
 export function CreateGroupChatModal({ onClose }: { onClose: () => void }) {
   const [closeCheck, setCloseCheck] = useState(false);
+
+  const [hasChanged, setHasChanged] = useState(false);
 
   const {
     register,
@@ -53,24 +55,26 @@ export function CreateGroupChatModal({ onClose }: { onClose: () => void }) {
         return;
       }
     }
-
-    // create hash (public information)
-    // chat id
-    // chat code
-    // chat picture
-    // chat title
-
-    // create json (private info)
-    // chat memebers list
-    // chat settings
   };
 
+  useEffect(() => {
+    if (!hasChanged) {
+      if (formData.title || formData.privacy || formData.description) {
+        setHasChanged(true);
+      }
+    }
+  }, [formData]);
   return (
     <>
       <Modal
         modalClassName="min-w-80"
         onClose={() => {
-          setCloseCheck(true);
+          console.log(formData);
+          if (hasChanged) {
+            setCloseCheck(true);
+          } else {
+            onClose();
+          }
         }}
         error={{ error: error, errorLable: "could not make chat" }}
       >
@@ -79,7 +83,7 @@ export function CreateGroupChatModal({ onClose }: { onClose: () => void }) {
             <p>Create a Chat</p>
           </div>
 
-          <SelectPicture />
+          <SelectPicture images={pfpImages} />
           <div className="flex justify-between items-center text-sm text-neutral-400 ">
             <span
               className="flex flex-row gap-1 hover:cursor-pointer"
@@ -150,7 +154,7 @@ export function CreateGroupChatModal({ onClose }: { onClose: () => void }) {
         </form>
       </Modal>
 
-      {closeCheck && (
+      {closeCheck && hasChanged && (
         <Modal
           onClose={() => {
             setCloseCheck(false);

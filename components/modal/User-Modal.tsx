@@ -11,7 +11,7 @@ import { createUserValidator, CreateUser } from "@/lib/validator";
 import axios, { AxiosError } from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
+import { pfpImages } from "../ui/Input";
 export const UserModal = () => {
   const { data: session } = useSession();
   const [showModal, setShowModal] = useState(false);
@@ -82,7 +82,7 @@ export const UserModal = () => {
           <div className="text-center text-neutral-400 text-lg mb-10">
             <p>Create Account to Enter</p>
           </div>
-          <SelectPicture />
+          <SelectPicture images={pfpImages} local="pfp" />
           <div className="flex justify-between text-sm text-neutral-500">
             <p>ID# {ServerSession.current.toLocaleUpperCase()}</p>
 
