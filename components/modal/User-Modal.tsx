@@ -33,6 +33,7 @@ export const UserModal = () => {
   const formData = watch();
   const ServerSession = useRef(nanoid(5));
 
+  const [image, setImage] = useState("/pfp/heart.webp");
   const [error, setError] = useState(false);
 
   const createAccount = async (formData: CreateUser) => {
@@ -42,6 +43,7 @@ export const UserModal = () => {
       const { data }: { data: { username: string; session: string } } =
         await axios.post("/api/user", {
           username: validUsername.username,
+          image: image,
           session: ServerSession.current,
         });
 
@@ -82,7 +84,12 @@ export const UserModal = () => {
           <div className="text-center text-neutral-400 text-lg mb-10">
             <p>Create Account to Enter</p>
           </div>
-          <SelectPicture images={pfpImages} local="pfp" />
+          <SelectPicture
+            images={pfpImages}
+            setImage={(newImage) => {
+              setImage(newImage);
+            }}
+          />
           <div className="flex justify-between text-sm text-neutral-500">
             <p>ID# {ServerSession.current.toLocaleUpperCase()}</p>
 

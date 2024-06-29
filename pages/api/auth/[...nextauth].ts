@@ -22,15 +22,16 @@ export const authOption: NextAuthOptions = {
           placeholder: "coolGuy123",
         },
         session: { label: "session", type: "text" },
+        image: {},
       },
       async authorize(credentials, req) {
         console.log("credentials");
         if (!credentials) {
           return null;
         }
-        const { id, username, session } = credentials;
+        const { id, username, session, image } = credentials;
 
-        const user = { id: id, name: username };
+        const user = { id: id, name: username, image: image };
 
         return user;
       },
