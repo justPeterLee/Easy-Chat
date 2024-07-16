@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} flex`} id={"__next"}>
+      <body className={`${inter.className} flex w-screen`} id={"__next"}>
         <Providers>
           <div id={"__modal"}></div>
           <SideNavigation />
