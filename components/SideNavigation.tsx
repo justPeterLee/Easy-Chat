@@ -8,7 +8,7 @@ import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { db } from "@/lib/redis";
 import { Button } from "./ui/Button";
 import { notFound } from "next/navigation";
-import { PubChatList } from "./SideNavComponents";
+import { PubChatList, UserTab } from "./SideNavComponents";
 // get public chat info
 async function getChatPubs(
   userId: string | undefined
@@ -57,7 +57,6 @@ export async function SideNavigation() {
   const session = await getServerSession(authOption);
   const chatList = await getChatPubs(session?.user.id);
 
-  console.log(session);
   // const chatList = session ? getChats(session.user.id) : [];
   // const { data: session } = useSession();
   // useEffect(() => {
@@ -67,20 +66,7 @@ export async function SideNavigation() {
     <div className="flex flex-col z-30 bg-neutral-900 w-[20rem] h-screen">
       <div className="flex  items-center h-[5rem]    text-neutral-300 text-2xl hover:bg-neutral-700  duration-100  cursor-pointer rounded-lg m-3">
         {session ? (
-          <>
-            <div className=" flex-1  flex justify-center items-center">
-              <Image
-                src={session.user.image}
-                alt={"pfp"}
-                width={60}
-                height={60}
-                className="rounded-full"
-              />
-            </div>
-            <div className=" w-[60%]  flex  items-center">
-              <p>{session.user.name}</p>
-            </div>
-          </>
+          <UserTab session={session} />
         ) : (
           <>
             <div className=" flex-1  flex justify-center items-center">
