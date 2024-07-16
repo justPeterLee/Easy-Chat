@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import axios from "axios";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { db } from "@/lib/redis";
-import { Button } from "./ui/Button";
+import { Button } from "../ui/Button";
 import { notFound } from "next/navigation";
 import { PubChatList, UserTab } from "./SideNavComponents";
 // get public chat info

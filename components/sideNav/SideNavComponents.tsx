@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "./ui/Button";
+import { Button } from "../ui/Button";
 import Image from "next/image";
 export function PubChatList({ chatList }: { chatList: ChatList }) {
   return (

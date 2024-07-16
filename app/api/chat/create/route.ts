@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
     // create user list
     const memeberId = await db.incr("memeber_id");
 
-    await db.zadd(`mem_list:${memeberId}`, { score: 3, member: `${id}` });
+    await db.sadd(`mem_list:${memeberId}`, id);
 
     // create message list
     const messageId = await db.incr("message_id");
