@@ -1,5 +1,6 @@
 import { CRTitle } from "@/components/page-chatroom/CRComponents";
 import { db } from "@/lib/redis";
+import { messageArrayValidator } from "@/lib/validator";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/dist/server/api-utils";
@@ -24,12 +25,23 @@ async function getChatData(chatId: string) {
   try {
     const chat = (await db.hgetall(`chat:${chatId}`)) as chatInfo | null;
     const members = await db.smembers(`mem_list:${chatId}`);
+    const dbMessages: string[] = await db.zrange(
+      `chat:messages:${chatId}`,
+      0,
+      -1
+    );
 
     if (!chat) {
       throw "not able to find chat";
     }
 
-    return { chat, members };
+    const parsedMessages = dbMessages
+      .map((message) => JSON.parse(message) as chatMessages)
+      .reverse();
+
+    const messages = messageArrayValidator.parse(parsedMessages);
+
+    return { chat, members, messages };
   } catch (err) {
     notFound();
   }
@@ -54,9 +66,9 @@ export default async function ChatRoom({ params }: PageProps) {
         title={chatData.chat.title}
         description={chatData.chat.description}
       />
-      {/* {params.chatId}
+      {params.chatId}
       <br />
-      {JSON.stringify(chatData)} */}
+      {JSON.stringify(chatData)}
     </main>
   );
 }

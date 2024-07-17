@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+// Chatroom
 export const createChatValidator = z
   .object({
     title: z.string(),
@@ -28,6 +29,7 @@ export const createChatValidator = z
 
 export type CreateChat = z.infer<typeof createChatValidator>;
 
+// User
 export const createUserValidator = z
   .object({
     username: z.string(),
@@ -42,3 +44,16 @@ export const createUserValidator = z
     }
   });
 export type CreateUser = z.infer<typeof createUserValidator>;
+
+// Messages
+export const messageValidator = z.object({
+  id: z.string(),
+  senderId: z.string(),
+  chatId: z.string(),
+  text: z.string(),
+  timestamp: z.number(),
+});
+
+export const messageArrayValidator = z.array(messageValidator);
+
+export type Message = z.infer<typeof messageValidator>;
