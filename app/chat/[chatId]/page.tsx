@@ -1,4 +1,7 @@
-import { CRTitle } from "@/components/page-chatroom/CRComponents";
+import {
+  CRSendMessage,
+  CRTitle,
+} from "@/components/page-chatroom/CRComponents";
 import { db } from "@/lib/redis";
 import { messageArrayValidator } from "@/lib/validator";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
@@ -61,7 +64,7 @@ export default async function ChatRoom({ params }: PageProps) {
   const chatData = await getChatData(params.chatId);
 
   return (
-    <main className="text-white bg-neutral-800 h-screen w-full p-10 ">
+    <main className="text-white bg-neutral-800 h-screen w-full p-10 relative">
       <CRTitle
         title={chatData.chat.title}
         description={chatData.chat.description}
@@ -69,6 +72,7 @@ export default async function ChatRoom({ params }: PageProps) {
       {params.chatId}
       <br />
       {JSON.stringify(chatData)}
+      <CRSendMessage />
     </main>
   );
 }
