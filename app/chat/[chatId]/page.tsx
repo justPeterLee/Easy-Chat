@@ -38,14 +38,11 @@ async function getChatData(chatId: string) {
       throw "not able to find chat";
     }
 
-    const parsedMessages = dbMessages
-      .map((message) => JSON.parse(message) as chatMessages)
-      .reverse();
+    const parsedMessages = dbMessages.reverse();
 
-    const messages = messageArrayValidator.parse(parsedMessages);
-
-    return { chat, members, messages };
+    return { chat, members, messages: parsedMessages };
   } catch (err) {
+    console.log(err);
     notFound();
   }
 }
@@ -62,7 +59,7 @@ export default async function ChatRoom({ params }: PageProps) {
   }
 
   const chatData = await getChatData(params.chatId);
-
+  // console.log(chatData);
   return (
     <main className="text-white bg-neutral-800 h-screen w-full p-10 relative">
       <CRTitle
@@ -72,7 +69,7 @@ export default async function ChatRoom({ params }: PageProps) {
       {params.chatId}
       <br />
       {JSON.stringify(chatData)}
-      <CRSendMessage />
+      <CRSendMessage chatId={params.chatId} />
     </main>
   );
 }

@@ -33,7 +33,7 @@ export function CRShowMessage() {
   return <div></div>;
 }
 
-export function CRSendMessage() {
+export function CRSendMessage({ chatId }: { chatId: string }) {
   const textRef = useRef<HTMLTextAreaElement | null>(null);
   const {
     control,
@@ -49,7 +49,10 @@ export function CRSendMessage() {
         return;
       }
 
-      await axios.post("/api/chat/send", { message: messageData.message });
+      await axios.post("/api/chat/send", {
+        message: messageData.message,
+        chatId,
+      });
       console.log("test");
       reset();
       textRef.current!.blur();

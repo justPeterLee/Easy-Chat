@@ -49,8 +49,7 @@ export type CreateUser = z.infer<typeof createUserValidator>;
 export const messageValidator = z.object({
   id: z.string(),
   senderId: z.string(),
-  chatId: z.string(),
-  text: z.string(),
+  message: z.string(),
   timestamp: z.number(),
 });
 

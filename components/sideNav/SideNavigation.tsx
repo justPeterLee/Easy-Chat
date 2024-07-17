@@ -21,7 +21,7 @@ async function getChatPubs(
       0,
       -1
     )) as string[];
-    console.log(sortedList);
+    // console.log(sortedList);
     // get public list keys
 
     if (sortedList.length) {
@@ -38,7 +38,7 @@ async function getChatPubs(
         return [];
       });
 
-      console.log(data);
+      // console.log(data);
       return data;
     } else {
       // invalid public key list
