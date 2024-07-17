@@ -25,13 +25,13 @@ export const POST = async (req: NextRequest) => {
     console.log(id);
 
     // create user list
-    const memeberId = await db.incr("memeber_id");
+    const memberId = await db.incr("member_id");
 
-    await db.sadd(`mem_list:${memeberId}`, id);
+    await db.sadd(`mem_list:${memberId}`, id);
 
     // create message list
     const messageId = await db.incr("message_id");
-    // await db.xadd(`mem_list:${memeberId}`,{score:})
+    // await db.xadd(`mem_list:${memberId}`,{score:})
 
     // add to chat list
     await db.zadd(`chatlist:${id}`, {
@@ -49,8 +49,8 @@ export const POST = async (req: NextRequest) => {
       privacy,
       password: password ? password : "",
       code,
-      memeberId: memeberId,
-      messageId: messageId,
+      memberId,
+      messageId,
     });
 
     //
