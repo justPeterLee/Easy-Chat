@@ -56,3 +56,11 @@ export const messageValidator = z.object({
 export const messageArrayValidator = z.array(messageValidator);
 
 export type Message = z.infer<typeof messageValidator>;
+
+// Join Chat
+export const joinChatValidator = z.object({
+  code: z.string(),
+  password: z.string().optional(),
+});
+
+export type JoinChat = z.infer<typeof joinChatValidator>;

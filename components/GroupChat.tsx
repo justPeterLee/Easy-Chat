@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Button } from "./ui/Button";
-import { CreateGroupChatModal } from "./modal/GroupChatModal";
-
+import { CreateGCModal } from "./modal/CreateGCModal";
+import { GCModal } from "./modal/GCModal";
 export function CreateGroupChat() {
   const [showModal, setShowModal] = useState(false);
 
   return (
     <>
       {showModal && (
-        <CreateGroupChatModal
+        <GCModal
           onClose={() => {
             setShowModal(false);
           }}
