@@ -54,9 +54,9 @@ async function getChatData(chatId: string) {
     // );
 
     // console.log(data);
-    const parsedMessages = dbMessages.reverse();
+    // const parsedMessages = dbMessages.reverse();
 
-    return { chat, members, messages: parsedMessages };
+    return { chat, members, messages: dbMessages };
   } catch (err) {
     console.log(err);
     notFound();
@@ -77,7 +77,7 @@ export default async function ChatRoom({ params }: PageProps) {
   const chatData = await getChatData(params.chatId);
   // console.log(chatData);
   return (
-    <main className="flex flex-col gap-2 text-white bg-neutral-800 h-screen w-full p-10 relative overflow-hidden">
+    <main className="flex flex-col gap-2 py-4 text-white bg-neutral-800 h-screen w-full relative overflow-hidden">
       <CRTitle
         title={chatData.chat.title}
         description={chatData.chat.description}
