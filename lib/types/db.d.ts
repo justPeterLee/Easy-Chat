@@ -21,7 +21,7 @@ interface chatMessages {
   id: string;
   senderId: string;
   chatId: string;
-  text: string;
+  message: string;
   timestamp: string;
 }
 

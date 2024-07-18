@@ -1,5 +1,6 @@
 import {
   CRSendMessage,
+  CRShowMessage,
   CRTitle,
 } from "@/components/page-chatroom/CRComponents";
 import { db } from "@/lib/redis";
@@ -28,7 +29,7 @@ async function getChatData(chatId: string) {
   try {
     const chat = (await db.hgetall(`chat:${chatId}`)) as chatInfo | null;
     const members = await db.smembers(`mem_list:${chatId}`);
-    const dbMessages: string[] = await db.zrange(
+    const dbMessages: chatMessages[] = await db.zrange(
       `chat:messages:${chatId}`,
       0,
       -1
@@ -38,6 +39,21 @@ async function getChatData(chatId: string) {
       throw "not able to find chat";
     }
 
+    // const data = Promise.all(
+    //   dbMessages.map(async (message) => {
+    //     const userInfo = await db.hmget(
+    //       `user:${message.senderId}`,
+    //       "image",
+    //       "username"
+    //     );
+    //     return userInfo;
+    //     // console.log(userInfo);
+    //     // const userMessage = {...message, ...userInfo};
+    //     // return userMessage
+    //   })
+    // );
+
+    // console.log(data);
     const parsedMessages = dbMessages.reverse();
 
     return { chat, members, messages: parsedMessages };
@@ -61,14 +77,14 @@ export default async function ChatRoom({ params }: PageProps) {
   const chatData = await getChatData(params.chatId);
   // console.log(chatData);
   return (
-    <main className="text-white bg-neutral-800 h-screen w-full p-10 relative">
+    <main className="flex flex-col gap-2 text-white bg-neutral-800 h-screen w-full p-10 relative overflow-hidden">
       <CRTitle
         title={chatData.chat.title}
         description={chatData.chat.description}
       />
-      {params.chatId}
-      <br />
-      {JSON.stringify(chatData)}
+
+      {/* {JSON.stringify(chatData)} */}
+      <CRShowMessage messages={chatData.messages} />
       <CRSendMessage chatId={params.chatId} />
     </main>
   );

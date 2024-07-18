@@ -29,8 +29,75 @@ export function CRMemebers() {
   return <div></div>;
 }
 
-export function CRShowMessage() {
-  return <div></div>;
+export function CRShowMessage({ messages }: { messages: chatMessages[] }) {
+  const scrollContainer = useRef<HTMLDivElement | null>(null);
+  const scollToBottom = () => {
+    scrollContainer.current!.scrollTop = scrollContainer.current!.scrollHeight;
+  };
+
+  useEffect(() => {
+    scollToBottom();
+  }, []);
+
+  return (
+    <div className="overflow-hidden flex-grow">
+      <div
+        ref={scrollContainer}
+        className="flex-col-reverse flex gap-2 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-500"
+      >
+        {messages.map((message) => {
+          return <CRShowMessageUser key={message.id} message={message} />;
+        })}
+      </div>
+    </div>
+  );
+}
+
+function CRShowMessageUser({ message }: { message: chatMessages }) {
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState({ image: "", username: "" });
+  const [error, setError] = useState(false);
+  //   useEffect(() => {
+  //     axios
+  //       .get(`/api/chat/users/${message.senderId}`)
+  //       .then(async (response) => {
+  //         const user = await response;
+  //         setUser({ ...user.data });
+  //         setError(false);
+  //         setLoading(false);
+  //       })
+  //       .catch((err) => {
+  //         setError(true);
+  //         setLoading(false);
+  //       });
+  //   }, []);
+  return (
+    <div className="flex  relative min-h-12 ">
+      {error ? (
+        <>message not found</>
+      ) : (
+        <>
+          {loading ? (
+            <div className="bg-neutral-400 w-12 h-12 rounded-full absolute animate-pulse" />
+          ) : (
+            <img
+              className="bg-neutral-600 w-12 h-12 rounded-full absolute"
+              src={user.image}
+              alt="pfp"
+            ></img>
+          )}
+          <div className="pl-16">
+            {loading ? (
+              <div className="bg-neutral-400 w-[10rem] h-[.75rem] rounded-lg animate-pulse"></div>
+            ) : (
+              <p className="text-yellow-400">{user.username}</p>
+            )}
+            <p className="text-neutral-200">{message.message}</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
 export function CRSendMessage({ chatId }: { chatId: string }) {
@@ -96,8 +163,8 @@ export function CRSendMessage({ chatId }: { chatId: string }) {
     };
   }, []);
   return (
-    <div className="absolute bottom-5 right-10 left-10">
-      <div className="w-full h-[1px] bg-neutral-400 mt-2" />
+    <div className="bottom-5 right-10 left-10">
+      <div className="w-full h-[1px] bg-neutral-400 " />
 
       <form onSubmit={handleSubmit(onSubmit)} className="relative mt-5">
         <Controller
