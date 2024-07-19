@@ -10,15 +10,18 @@ import { format } from "date-fns";
 export function CRTitle({
   title,
   description,
+  code,
 }: {
   title: string;
   description: string;
+  code: string;
 }) {
   return (
     <div className="flex flex-col gap-1 w-full px-10 pb-4 shadow-md">
-      <span className="text-xl flex gap-3">
+      <span className="text-xl flex gap-3 items-center">
         <h1 className="text-yellow-400">#</h1>
         <h1>{title}</h1>
+        <p className="text-neutral-500 text-xs">code: {code}</p>
       </span>
       {/* <span className="text-neutral-400">
         <p>{description}</p>

@@ -81,6 +81,7 @@ export default async function ChatRoom({ params }: PageProps) {
       <CRTitle
         title={chatData.chat.title}
         description={chatData.chat.description}
+        code={chatData.chat.code}
       />
 
       {/* {JSON.stringify(chatData)} */}
