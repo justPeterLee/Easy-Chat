@@ -58,9 +58,21 @@ export const messageArrayValidator = z.array(messageValidator);
 export type Message = z.infer<typeof messageValidator>;
 
 // Join Chat
-export const joinChatValidator = z.object({
-  code: z.string(),
-  password: z.string().optional(),
-});
+export const joinChatValidator = z
+  .object({
+    code: z.string(),
+    password: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.code.replace(/\s/g, "")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["code"],
+        message: "invalid code",
+      });
+    }
+
+    return z.NEVER;
+  });
 
 export type JoinChat = z.infer<typeof joinChatValidator>;

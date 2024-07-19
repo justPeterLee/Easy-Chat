@@ -54,9 +54,9 @@ async function getChatData(chatId: string) {
     // );
 
     // console.log(data);
-    // const parsedMessages = dbMessages.reverse();
+    const parsedMessages = dbMessages.reverse();
 
-    return { chat, members, messages: dbMessages };
+    return { chat, members, messages: parsedMessages };
   } catch (err) {
     console.log(err);
     notFound();

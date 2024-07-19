@@ -3,6 +3,7 @@ import { db } from "@/lib/redis";
 import { getServerSession } from "next-auth";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { createChatValidator } from "@/lib/validator";
+import { encrypt } from "@/lib/utils";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -44,10 +45,10 @@ export const POST = async (req: NextRequest) => {
 
     // create private info
     await db.hset(`chat:${chatId}`, {
-      title,
-      description,
-      privacy,
-      password: password ? password : "",
+      title: data.title,
+      description: data.description,
+      privacy: data.privacy,
+      password: data.privacy && data.password ? encrypt(data.password) : "",
       code,
       memberId,
       messageId,
