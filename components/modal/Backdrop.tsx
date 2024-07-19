@@ -38,7 +38,7 @@ export function Modal({
         <div
           id="modal-container"
           className={cn(
-            "z-30 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-neutral-800 rounded p-5 pt-10 pb-10 text-neutral-200",
+            "z-30 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-neutral-800 rounded px-5 py-10 text-neutral-200",
             modalClassName
           )}
         >

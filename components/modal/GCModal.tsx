@@ -24,7 +24,7 @@ export function GCModal({ onClose }: { onClose: () => void }) {
   return (
     <>
       <Modal
-        modalClassName="min-w-80"
+        modalClassName="min-w-80 py-8"
         onClose={() => {
           if (hasChanged) {
             setCloseCheck(true);

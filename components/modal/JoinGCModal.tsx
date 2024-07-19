@@ -76,7 +76,7 @@ export function JoinGCModal({
         register={register}
         id={"code"}
         inputClassName="w-full"
-        outClassName="mb-4"
+        // outClassName="mb-4"
         value={formData.code}
         label="code (or url)"
         error={errors.code?.message}
