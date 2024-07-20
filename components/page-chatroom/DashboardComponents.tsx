@@ -4,31 +4,34 @@ import { Button } from "../ui/Button";
 import { useState } from "react";
 import { GCModal } from "../modal/GCModal";
 
-export function DBChatlist({ chatlist }: { chatlist: PublicChatList }) {
+export function DBChatlist({ chatlist }: { chatlist: allChatInfo[] }) {
   return (
     <>
-      {chatlist.map((pubChat) => {
-        return <GCCard key={pubChat.chatId} chatInfo={pubChat} />;
+      {chatlist.map((chatInfo) => {
+        return <GCCard key={chatInfo.chatInfo.code} chatInfo={chatInfo} />;
       })}
     </>
   );
 }
 
-export function GCCard({ chatInfo }: { chatInfo: PublicChat }) {
+export function GCCard({ chatInfo }: { chatInfo: allChatInfo }) {
   return (
     <div className="h-40 w-auto bg-neutral-700  rounded-lg relative ">
       <Link
-        href={`/chat/${chatInfo.chatId}`}
+        href={`/chat/${chatInfo.id}`}
         className="h-40 w-full flex flex-col hover:brightness-[.8] duration-75"
       >
         <div className="flex items-center justify-between gap-4 p-3 bg-neutral-900 rounded-t-lg">
-          <div className="bg-neutral-500 h-10 w-10 rounded-full" />
+          <img
+            className="bg-neutral-500 h-10 w-10 rounded-full"
+            src={chatInfo.chatInfo.image}
+          />
           <div className="flex flex-grow flex-col">
-            <p className="text-neutral-300">{chatInfo.title}</p>
+            <p className="text-neutral-300">{chatInfo.chatInfo.title}</p>
             <span className="flex text-xs text-neutral-500 gap-2">
-              <p>privacy</p>
-              <p>memebers</p>
-              <p>code: asdf123</p>
+              <p>privacy: {chatInfo.chatInfo.privacy ? "true" : "false"}</p>
+              <p>memebers: {chatInfo.members}</p>
+              <p>code: {chatInfo.chatInfo.code}</p>
             </span>
           </div>
         </div>

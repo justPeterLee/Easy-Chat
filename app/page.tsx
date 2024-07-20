@@ -8,34 +8,63 @@ import { getServerSession } from "next-auth";
 
 async function getPublicChatList(
   userId: string | undefined
-): Promise<PublicChatList> {
+): Promise<allChatInfo[]> {
   try {
     if (!userId) {
       return [];
     }
 
-    const sortedList = (await db.zrange(
-      `chatlist:${userId}`,
-      0,
-      -1
-    )) as string[];
+    const userChatsList = (await db.zrange(`chatlist:${userId}`, 0, -1)) as {
+      code: string;
+      id: number;
+    }[];
 
-    if (sortedList.length) {
-      const data: any = await Promise.all(
-        sortedList.map(async (pubId) => {
-          const pubChat = await db.hgetall(`chat:public:${pubId}`);
-          return pubChat;
+    if (userChatsList.length) {
+      // const publicChatList: PublicChatList = await Promise.all(
+      //   userChatsList.map(async (chatCodes): Promise<PublicChat> => {
+      //     const pubChat = await db.hgetall(`chat:public:${chatCodes.code}`);
+      //     return pubChat as unknown as PublicChat;
+      //   })
+      // ).catch((e) => {
+      //   console.log("error ", e);
+      //   return [];
+      // });
+
+      // if (publicChatList.length) {
+      //   // get chat info
+      //   // members amount
+      // }
+
+      const chatInfoList: allChatInfo[] = await Promise.all(
+        userChatsList.map(async (chatCodes) => {
+          const allChatInfo = await Promise.all([
+            (await db.hmget(
+              `chat:${chatCodes.id}`,
+              "title",
+              "privacy",
+              "code",
+              "image"
+            )) as unknown as generalChatInfo,
+            (await db.scard(`mem_list:${chatCodes.id}`)) as number,
+            (await db.zrange(
+              `chat:messages:${chatCodes.id}`,
+              0,
+              2
+            )) as unknown as chatMessages[],
+          ]);
+
+          const allChatInfoObj = {
+            id: chatCodes.id,
+            chatInfo: allChatInfo[0],
+            members: allChatInfo[1],
+            messages: allChatInfo[2],
+          };
+          return allChatInfoObj;
         })
-      ).catch((e) => {
-        console.log("error ", e);
-        return [];
-      });
-
-      return data;
-    } else {
-      console.log("invalid list");
-      return [];
+      );
+      return chatInfoList;
     }
+
     return [];
   } catch (err) {
     return [];
@@ -44,7 +73,7 @@ async function getPublicChatList(
 export default async function Dashboard() {
   const session = await getServerSession(authOption);
   const publicChatList = await getPublicChatList(session?.user.id);
-
+  console.log(publicChatList);
   return (
     <>
       <main className="w-screen h-screen bg-neutral-800 p-4 px-10 flex flex-col gap-4">

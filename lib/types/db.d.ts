@@ -12,11 +12,25 @@ type PublicChatList = PublicChat[];
 interface chatInfo {
   title: string;
   code: string;
+  image: string;
   description: string;
   password: string;
   privacy: boolean;
   memberId: string;
   messageId: string;
+}
+interface generalChatInfo {
+  title: string;
+  privacy: boolean;
+  code: string;
+  image: string;
+}
+
+interface allChatInfo {
+  id: number;
+  chatInfo: generalChatInfo;
+  members: number;
+  messages: chatMessages[];
 }
 
 // chat messages

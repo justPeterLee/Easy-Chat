@@ -45,7 +45,7 @@ export const POST = async (req: NextRequest) => {
     await db.sadd(`mem_list:${chatId}`, session.user.id);
     await db.zadd(`chatlist:${session.user.id}`, {
       score: Date.now(),
-      member: validatedCode.code,
+      member: JSON.stringify({ code: validatedCode.code, id: chatId }),
     });
 
     return new Response("OK");

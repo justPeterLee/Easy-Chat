@@ -115,10 +115,10 @@ export function StandardInput(props: StandardInputProps) {
   );
 }
 
-interface imagesArray {
+interface imagesObject {
   [key: string]: { image: string; alt: string };
 }
-export const pfpImages: imagesArray = {
+export const pfpImages: imagesObject = {
   heart: {
     image: "/pfp/heart.webp",
     alt: "heart",
@@ -144,6 +144,13 @@ export const pfpImages: imagesArray = {
     alt: "sunflower",
   },
 };
+
+export function pfpImagesArray(imageArr: imagesObject): string[] {
+  const imageKeys = Object.keys(pfpImages);
+  return imageKeys.map((image) => {
+    return pfpImages[image].image;
+  });
+}
 
 function SelectGrid({
   onClose,
@@ -244,8 +251,8 @@ export function SelectPicture({
   setImage,
   local,
 }: {
-  images: imagesArray;
-  setImage?: (image: string) => void;
+  images: imagesObject;
+  setImage: (image: string) => void;
   local?: string;
 }) {
   const savedImage = local && localStorage.getItem(local);
@@ -299,9 +306,7 @@ export function SelectPicture({
               setImageTag({ ...images[selectedImage], key: selectedImage });
               if (local) localStorage.setItem(local, selectedImage);
 
-              if (setImage) {
-                setImage(imageTag.image);
-              }
+              setImage(images[selectedImage].image);
             }
           }}
           selected={imageTag.key}

@@ -16,21 +16,21 @@ async function getChatPubs(
   try {
     if (!userId) return [];
 
-    const sortedList = (await db.zrange(
-      `chatlist:${userId}`,
-      0,
-      -1
-    )) as string[];
+    const userChatList = (await db.zrange(`chatlist:${userId}`, 0, -1)) as {
+      code: string;
+      id: number;
+    }[];
+
     // console.log(sortedList);
     // get public list keys
 
-    if (sortedList.length) {
+    if (userChatList.length) {
       // is valid user / public list key
       // create promise array (parallel data fetch)
 
-      const data: any = await Promise.all(
-        sortedList.map(async (pubId) => {
-          const pubChat = await db.hgetall(`chat:public:${pubId}`);
+      const publicChat: any = await Promise.all(
+        userChatList.map(async (chatCodes) => {
+          const pubChat = await db.hgetall(`chat:public:${chatCodes.code}`);
           return pubChat;
         })
       ).catch((e) => {
@@ -38,30 +38,21 @@ async function getChatPubs(
         return [];
       });
 
-      // console.log(data);
-      return data;
+      return publicChat;
     } else {
       // invalid public key list
       console.log("invalid list");
       return [];
     }
   } catch (err) {
-    notFound();
+    return [];
   }
-  // console.log(list);
-  // console.log(res.data);
-  // return res;
 }
 
 export async function SideNavigation() {
   const session = await getServerSession(authOption);
   const chatList = await getChatPubs(session?.user.id);
 
-  // const chatList = session ? getChats(session.user.id) : [];
-  // const { data: session } = useSession();
-  // useEffect(() => {
-  //   console.log(session);
-  // }, [session]);
   return (
     <div className="flex flex-col z-30 bg-neutral-900 w-[20rem] h-screen">
       <div className="flex  items-center h-[5rem]    text-neutral-300 text-2xl hover:bg-neutral-700  duration-100  cursor-pointer rounded-lg m-3">
@@ -80,7 +71,6 @@ export async function SideNavigation() {
       </div>
       {session ? (
         <Suspense fallback={<div>Loading...</div>}>
-          {/* <Playlists artistID={artist.id} /> */}
           <PubChatList chatList={chatList} />
         </Suspense>
       ) : (

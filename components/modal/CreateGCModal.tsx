@@ -1,5 +1,6 @@
-import { SelectPicture, StandardInput } from "../ui/Input";
-import { useEffect, useRef } from "react";
+"use client";
+import { SelectPicture, StandardInput, pfpImagesArray } from "../ui/Input";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/Button";
 import { customAlphabet } from "nanoid";
 import axios, { AxiosError } from "axios";
@@ -40,12 +41,15 @@ export function CreateGCModal({
   );
   const ChatCode = useRef(customNanoId());
 
+  const images = pfpImagesArray(pfpImages);
+  const [imageState, setImageState] = useState(images[0]);
   const createChat = async (data: CreateChat) => {
     try {
       const validatedChat = createChatValidator.parse(data);
       await axios.post("/api/chat/create", {
         ...validatedChat,
         code: ChatCode.current,
+        image: imageState,
       });
 
       onClose();
@@ -66,11 +70,16 @@ export function CreateGCModal({
 
   useEffect(() => {
     if (!hasChanged) {
-      if (formData.title || formData.privacy || formData.description) {
+      if (
+        formData.title ||
+        formData.privacy ||
+        formData.description ||
+        imageState
+      ) {
         updateHasChanged(true);
       }
     }
-  }, [formData]);
+  }, [formData, imageState]);
 
   return (
     <form onSubmit={handleSubmit(createChat)}>
@@ -88,7 +97,13 @@ export function CreateGCModal({
         </Button>
       </div>
 
-      <SelectPicture images={pfpImages} />
+      <SelectPicture
+        images={pfpImages}
+        setImage={(image) => {
+          setImageState(image);
+          updateHasChanged(true);
+        }}
+      />
       <div className="flex justify-between items-center text-sm text-neutral-400 ">
         <span
           className="flex flex-row gap-1 hover:cursor-pointer"

@@ -29,6 +29,12 @@ export const createChatValidator = z
 
 export type CreateChat = z.infer<typeof createChatValidator>;
 
+export const generatedChatDataValidator = z.object({
+  code: z.string(),
+  image: z.string(),
+});
+export type GenChatData = z.infer<typeof createChatValidator>;
+
 // User
 export const createUserValidator = z
   .object({
