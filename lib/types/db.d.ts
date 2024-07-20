@@ -1,12 +1,14 @@
+// ----- Chat Info -----
+
+// public chat
 interface PublicChat {
   title: string;
   chatId: number;
 }
 
-type ChatList = PublicChat[];
+type PublicChatList = PublicChat[];
 
-// CHATROOM
-// fetch
+// chat info
 interface chatInfo {
   title: string;
   code: string;
@@ -17,6 +19,7 @@ interface chatInfo {
   messageId: string;
 }
 
+// chat messages
 interface chatMessages {
   id: string;
   senderId: string;
@@ -25,7 +28,7 @@ interface chatMessages {
   timestamp: string;
 }
 
-// component
+// ----- component -----
 interface CRTitle {
   title: string;
   description: string;

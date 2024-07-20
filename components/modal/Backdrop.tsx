@@ -24,7 +24,7 @@ export function Modal({
     <ModalPortal selector="#__modal">
       <div
         id="modal"
-        className={cn("z-20 absolute h-screen w-screen", containerClassName)}
+        className={cn("z-40 absolute h-screen w-screen", containerClassName)}
       >
         <div
           id="backdrop"

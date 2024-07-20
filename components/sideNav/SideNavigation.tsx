@@ -12,7 +12,7 @@ import { PubChatList, UserTab } from "./SideNavComponents";
 // get public chat info
 async function getChatPubs(
   userId: string | undefined
-): Promise<{ chatId: number; title: string }[]> {
+): Promise<PublicChatList> {
   try {
     if (!userId) return [];
 

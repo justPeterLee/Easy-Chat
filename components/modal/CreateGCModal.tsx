@@ -1,6 +1,5 @@
-import { Modal } from "./Backdrop";
 import { SelectPicture, StandardInput } from "../ui/Input";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Button } from "../ui/Button";
 import { customAlphabet } from "nanoid";
 import axios, { AxiosError } from "axios";
@@ -10,7 +9,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { pfpImages } from "../ui/Input";
 
-import { JoinGCModal } from "./JoinGCModal";
 export function CreateGCModal({
   onClose,
   updateHasChanged,
