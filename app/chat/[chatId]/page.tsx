@@ -4,10 +4,8 @@ import {
   CRTitle,
 } from "@/components/page-chatroom/CRComponents";
 import { db } from "@/lib/redis";
-import { messageArrayValidator } from "@/lib/validator";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
-import { redirect } from "next/dist/server/api-utils";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -38,22 +36,6 @@ async function getChatData(chatId: string) {
     if (!chat) {
       throw "not able to find chat";
     }
-
-    // const data = Promise.all(
-    //   dbMessages.map(async (message) => {
-    //     const userInfo = await db.hmget(
-    //       `user:${message.senderId}`,
-    //       "image",
-    //       "username"
-    //     );
-    //     return userInfo;
-    //     // console.log(userInfo);
-    //     // const userMessage = {...message, ...userInfo};
-    //     // return userMessage
-    //   })
-    // );
-
-    // console.log(data);
     const parsedMessages = dbMessages.reverse();
 
     return { chat, members, messages: parsedMessages };
