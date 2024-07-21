@@ -42,6 +42,16 @@ interface chatMessages {
   timestamp: string;
 }
 
+// chat members
+interface chatMember {
+  id: string;
+  username: string;
+  image: string;
+  isBan: boolean;
+  isMute: boolean;
+  role: "owner" | "admin" | "member";
+  joined: number;
+}
 // ----- component -----
 interface CRTitle {
   title: string;

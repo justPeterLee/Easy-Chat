@@ -45,7 +45,7 @@ async function getPublicChatList(
               "code",
               "image"
             )) as unknown as generalChatInfo,
-            (await db.scard(`mem_list:${chatCodes.id}`)) as number,
+            (await db.hlen(`chat:members:${chatCodes.id}`)) as number,
             (await db.zrange(
               `chat:messages:${chatCodes.id}`,
               0,

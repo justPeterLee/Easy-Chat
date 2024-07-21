@@ -17,9 +17,13 @@ export const POST = async (req: NextRequest) => {
 
     // get chat memeber list
     // verify is in chat
-    const isMember = await db.sismember(`mem_list:${chatId}`, session.user.id);
+    // const isMember = await db.sismember(`mem_list:${chatId}`, session.user.id);
+    // if (!isMember) return new Response("Unauthorized", { status: 401 });
 
-    if (!isMember) return new Response("Unauthorized", { status: 401 });
+    const isMemberH = await db.hmget(`chat:members:${chatId}`, session.user.id);
+    if (!isMemberH) {
+      return new Response("unauthorized", { status: 401 });
+    }
 
     // fill missing data
     // id

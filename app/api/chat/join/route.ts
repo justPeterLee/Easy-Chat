@@ -36,13 +36,30 @@ export const POST = async (req: NextRequest) => {
     }
 
     // check if already in chat
-    const isMember = await db.sismember(`mem_list:${chatId}`, session.user.id);
-    if (isMember) {
-      return new Response("already a memeber", { status: 500 });
+    // const isMember = await db.sismember(`mem_list:${chatId}`, session.user.id);
+    // if (isMember) {
+    //   return new Response("already a memeber", { status: 500 });
+    // }
+
+    const isMemberH = await db.hmget(`chat:members:${chatId}`, session.user.id);
+    if (isMemberH) {
+      return new Response("already a member", { status: 500 });
     }
 
     // add to memeber list
-    await db.sadd(`mem_list:${chatId}`, session.user.id);
+    // await db.sadd(`mem_list:${chatId}`, session.user.id);
+
+    const newMember: chatMember = {
+      id: session.user.id,
+      username: session.user.name,
+      image: session.user.image,
+      role: "member",
+      isBan: false,
+      isMute: false,
+      joined: Date.now(),
+    };
+
+    await db.hset(`chat:members:${chatId}`, { [session.user.id]: newMember });
     await db.zadd(`chatlist:${session.user.id}`, {
       score: Date.now(),
       member: JSON.stringify({ code: validatedCode.code, id: chatId }),

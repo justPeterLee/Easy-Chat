@@ -11,6 +11,7 @@ import { encrypt } from "@/lib/utils";
 export const POST = async (req: NextRequest) => {
   try {
     const session = await getServerSession(authOption);
+    console.log(session);
     if (!session) {
       return new Response("unathorized", { status: 401 });
     }
@@ -34,8 +35,19 @@ export const POST = async (req: NextRequest) => {
 
     // create user list
     const memberId = await db.incr("member_id");
-    await db.sadd(`mem_list:${memberId}`, id);
+    // await db.sadd(`mem_list:${memberId}`, id);
 
+    const newMember: chatMember = {
+      id: session.user.id,
+      username: session.user.name,
+      image: session.user.image,
+      role: "owner",
+      isBan: false,
+      isMute: false,
+      joined: Date.now(),
+    };
+
+    await db.hset(`chat:members:${chatId}`, { [session.user.id]: newMember });
     // create message list
     const messageId = await db.incr("message_id");
 

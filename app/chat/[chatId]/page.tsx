@@ -16,17 +16,22 @@ interface PageProps {
 
 async function validateUser(chatId: string, userId: string) {
   try {
-    const isValid = await db.sismember(`mem_list:${chatId}`, userId);
-    return isValid;
+    // const isValid = await db.sismember(`mem_list:${chatId}`, userId);
+    // return isValid;
+
+    const isMember = await db.hmget(`chat:members:${chatId}`, userId);
+    return isMember;
   } catch (error) {
-    notFound();
+    // notFound()
+    return false;
   }
 }
 
 async function getChatData(chatId: string) {
   try {
     const chat = (await db.hgetall(`chat:${chatId}`)) as chatInfo | null;
-    const members = await db.smembers(`mem_list:${chatId}`);
+    // const members = await db.smembers(`mem_list:${chatId}`);
+    const members = await db.hgetall(`chat:members:${chatId}`);
     const dbMessages: chatMessages[] = await db.zrange(
       `chat:messages:${chatId}`,
       0,
