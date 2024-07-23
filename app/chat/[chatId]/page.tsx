@@ -1,4 +1,5 @@
 import {
+  CRMemberList,
   CRSendMessage,
   CRShowMessage,
   CRTitle,
@@ -31,7 +32,9 @@ async function getChatData(chatId: string) {
   try {
     const chat = (await db.hgetall(`chat:${chatId}`)) as chatInfo | null;
     // const members = await db.smembers(`mem_list:${chatId}`);
-    const members = await db.hgetall(`chat:members:${chatId}`);
+    const members: { [key: string]: chatMember } | null = await db.hgetall(
+      `chat:members:${chatId}`
+    );
     const dbMessages: chatMessages[] = await db.zrange(
       `chat:messages:${chatId}`,
       0,
@@ -62,9 +65,9 @@ export default async function ChatRoom({ params }: PageProps) {
   }
 
   const chatData = await getChatData(params.chatId);
-  // console.log(chatData);
+  console.log(chatData);
   return (
-    <main className="flex flex-col gap-2 py-4 text-white bg-neutral-800 h-screen w-full relative overflow-hidden">
+    <main className="flex flex-col  text-white bg-neutral-800 h-screen w-full relative overflow-hidden">
       <CRTitle
         title={chatData.chat.title}
         description={chatData.chat.description}
@@ -72,8 +75,15 @@ export default async function ChatRoom({ params }: PageProps) {
       />
 
       {/* {JSON.stringify(chatData)} */}
-      <CRShowMessage messages={chatData.messages} />
-      <CRSendMessage chatId={params.chatId} />
+      <div className="flex flex-grow w-full">
+        <div className="flex flex-col flex-grow">
+          <CRShowMessage messages={chatData.messages} />
+          <CRSendMessage chatId={params.chatId} />
+        </div>
+        <div className="w-[15rem] bg-[#1f1f1f]">
+          {chatData.members && <CRMemberList memberList={chatData.members} />}
+        </div>
+      </div>
     </main>
   );
 }

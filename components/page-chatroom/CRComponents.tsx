@@ -1,11 +1,13 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../ui/Button";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import axios, { AxiosError } from "axios";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Modal } from "../modal/Backdrop";
 
 export function CRTitle({
   title,
@@ -17,7 +19,7 @@ export function CRTitle({
   code: string;
 }) {
   return (
-    <div className="flex flex-col gap-1 w-full px-10 pb-4 shadow-md">
+    <div className="flex flex-col gap-1 w-full px-10 py-4 shadow-md">
       <span className="text-xl flex gap-3 items-center">
         <h1 className="text-yellow-400">#</h1>
         <h1>{title}</h1>
@@ -45,7 +47,7 @@ export function CRShowMessage({ messages }: { messages: chatMessages[] }) {
   }, []);
 
   return (
-    <div className="overflow-hidden flex-grow min-h-20">
+    <div className="overflow-hidden flex-grow min-h-20 mb-3">
       <div
         ref={scrollContainer}
         className="flex-col-reverse flex gap-2 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-500 px-10"
@@ -164,9 +166,7 @@ function CRShowMessageUser({
                 </p>
               </div>
             )}
-            <p className="text-neutral-200">
-              {message.message} {index}
-            </p>
+            <p className="text-neutral-200">{message.message}</p>
           </div>
         </>
       )}
@@ -197,9 +197,7 @@ function CRSendMessageOnly({
           {format(new Date(message.timestamp), "hh:mm aa")}
         </span>
       )}
-      <span>
-        {message.message} {index}
-      </span>
+      <span>{message.message}</span>
     </div>
   );
 }
@@ -226,7 +224,6 @@ export function CRSendMessage({ chatId }: { chatId: string }) {
 
   const onSubmit = async (messageData: { message: string }) => {
     try {
-      console.log(messageData);
       if (!messageData.message.replace(/\s/g, "")) {
         return;
       }
@@ -235,13 +232,8 @@ export function CRSendMessage({ chatId }: { chatId: string }) {
         message: messageData.message,
         chatId,
       });
-      console.log("test");
       reset();
       textRef.current!.blur();
-      // add value
-      // valiate values
-      // send value to db
-      // clear & unfocus input
     } catch (err) {
       if (err instanceof z.ZodError) {
         console.log("failed to send message", { message: err.message });
@@ -321,5 +313,92 @@ export function CRSendMessage({ chatId }: { chatId: string }) {
         </div>
       </form>
     </div>
+  );
+}
+
+export function CRMemberList({
+  memberList,
+}: {
+  memberList: { [key: string]: chatMember };
+}) {
+  const memberListArray = useMemo(() => {
+    const memberKeyArray = Object.keys(memberList);
+    const memberArray = memberKeyArray.map((memberKey: string) => {
+      return memberList[memberKey];
+    });
+    return memberArray;
+  }, [memberList]);
+
+  return (
+    <div className="p-3">
+      <p className="text-sm text-neutral-400">
+        members - {memberListArray.length}
+      </p>
+      {memberListArray.map((member) => {
+        return <MemberCard memberInfo={member} key={member.id} />;
+      })}
+    </div>
+  );
+}
+
+function MemberCard({ memberInfo }: { memberInfo: chatMember }) {
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const [isClicked, setIsClicked] = useState(false);
+
+  return (
+    <>
+      <div
+        ref={cardRef}
+        onClick={() => {
+          setIsClicked(true);
+        }}
+        className={cn(
+          "hover:bg-neutral-700 hover:cursor-pointer duration-100 rounded p-2 flex items-center gap-3 text-neutral-400 select-none",
+          { "bg-neutral-700": isClicked }
+        )}
+      >
+        <img
+          className="bg-neutral-500 h-9 w-9 rounded-full"
+          src={memberInfo.image}
+        />
+        <div className="flex items-center gap-2">
+          <p>{memberInfo.username}</p>
+          <p className="text-xs">{memberInfo.role === "owner" && "(owner)"}</p>
+        </div>
+      </div>
+      {isClicked && cardRef.current && (
+        <Modal
+          onClose={() => {
+            setIsClicked(false);
+          }}
+          invisBack={true}
+          modalCustomCords={{
+            state: true,
+            style: {
+              top: `${cardRef.current.getBoundingClientRect().top}px`,
+              right: `${
+                innerWidth - cardRef.current.getBoundingClientRect().left + 24
+              }px`,
+            },
+          }}
+          modalClassName={` p-1 bg-neutral-700`}
+        >
+          <div
+            className="rounded flex flex-col w-auto"
+            onClick={() => setIsClicked(false)}
+          >
+            <Button variant={"ghost"} className="hover:brightness-[.8]">
+              mute
+            </Button>
+            <Button variant={"ghost"} className="hover:brightness-[.8]">
+              kick
+            </Button>
+            <Button variant={"ghost"} className="hover:brightness-[.8]">
+              ban
+            </Button>
+          </div>
+        </Modal>
+      )}
+    </>
   );
 }

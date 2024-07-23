@@ -10,13 +10,18 @@ export function Modal({
   invisBack = false,
   containerClassName,
   modalClassName,
+  modalCustomCords,
   error,
 }: {
   children: ReactNode;
-  onClose?: () => void;
+  onClose: () => void;
   invisBack?: boolean;
   containerClassName?: string;
   modalClassName?: string;
+  modalCustomCords?: {
+    state: boolean;
+    style: { top?: string; bottom?: string; left?: string; right?: string };
+  };
 
   error?: { error: boolean; errorLable: string };
 }) {
@@ -24,23 +29,29 @@ export function Modal({
     <ModalPortal selector="#__modal">
       <div
         id="modal"
-        className={cn("z-40 absolute h-screen w-screen", containerClassName)}
+        className={cn(
+          "z-40 absolute h-screen w-screen overflow-hidden",
+          containerClassName
+        )}
       >
         <div
           id="backdrop"
           className={cn("h-screen w-screen bg-black absolute opacity-40", {
             "bg-transparent": invisBack,
           })}
-          onClick={() => {
-            if (onClose) onClose();
-          }}
+          onClick={onClose}
         ></div>
         <div
           id="modal-container"
           className={cn(
-            "z-30 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-neutral-800 rounded px-5 py-10 text-neutral-200",
+            "z-30 absolute bg-neutral-800 rounded px-5 py-10 text-neutral-200",
+            {
+              "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2":
+                !modalCustomCords,
+            },
             modalClassName
           )}
+          style={modalCustomCords ? modalCustomCords.style : {}}
         >
           {children}
 
