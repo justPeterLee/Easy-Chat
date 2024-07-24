@@ -21,6 +21,8 @@ async function validateUser(chatId: string, userId: string) {
     // return isValid;
 
     const isMember = await db.hmget(`chat:members:${chatId}`, userId);
+
+    // console.log(wasMember);
     return isMember;
   } catch (error) {
     // notFound()
@@ -65,7 +67,6 @@ export default async function ChatRoom({ params }: PageProps) {
   }
 
   const chatData = await getChatData(params.chatId);
-  console.log(chatData);
   return (
     <main className="flex flex-col  text-white bg-neutral-800 h-screen w-full relative overflow-hidden">
       <CRTitle

@@ -8,6 +8,7 @@ import axios, { AxiosError } from "axios";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Modal } from "../modal/Backdrop";
+import { userActionValidator } from "@/lib/validator";
 
 export function CRTitle({
   title,
@@ -356,37 +357,18 @@ function MemberCard({
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [isClicked, setIsClicked] = useState(false);
 
-  const handleMute = async () => {
+  const handleUserAction = async (userAction: "mute" | "kick" | "ban") => {
     try {
-      await axios.post("/api/chat/user/mute", {
+      const validUserAction = userActionValidator.parse({
         userId: parseInt(memberInfo.id),
         chatId: parseInt(chatId),
       });
+      await axios.post(`/api/chat/user/${userAction}`, validUserAction);
     } catch (err) {
-      console.log("mute error: ", err);
+      console.log("user action failed: ", err);
     }
   };
 
-  const handleBan = async () => {
-    try {
-      await axios.post("/api/chat/user/ban", {
-        userId: parseInt(memberInfo.id),
-        chatId: parseInt(chatId),
-      });
-    } catch (err) {
-      console.log("ban error: ", err);
-    }
-  };
-  const handleKick = async () => {
-    try {
-      await axios.post("/api/chat/user/kick", {
-        userId: parseInt(memberInfo.id),
-        chatId: parseInt(chatId),
-      });
-    } catch (err) {
-      console.log("kick error: ", err);
-    }
-  };
   return (
     <>
       <div
@@ -431,17 +413,29 @@ function MemberCard({
           >
             <Button
               onClick={() => {
-                handleMute();
+                handleUserAction("mute");
               }}
               variant={"ghost"}
               className="hover:brightness-[.8]"
             >
               mute
             </Button>
-            <Button variant={"ghost"} className="hover:brightness-[.8]">
+            <Button
+              onClick={() => {
+                handleUserAction("kick");
+              }}
+              variant={"ghost"}
+              className="hover:brightness-[.8]"
+            >
               kick
             </Button>
-            <Button variant={"ghost"} className="hover:brightness-[.8]">
+            <Button
+              onClick={() => {
+                handleUserAction("ban");
+              }}
+              variant={"ghost"}
+              className="hover:brightness-[.8]"
+            >
               ban
             </Button>
           </div>
