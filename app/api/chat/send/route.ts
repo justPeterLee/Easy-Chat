@@ -13,24 +13,23 @@ export const POST = async (req: NextRequest) => {
 
     if (!session) return new Response("Unauthorized", { status: 401 });
 
-    // console.log(body);
-
     // get chat memeber list
-    // verify is in chat
-    // const isMember = await db.sismember(`mem_list:${chatId}`, session.user.id);
-    // if (!isMember) return new Response("Unauthorized", { status: 401 });
 
-    const isMemberH = await db.hmget(`chat:members:${chatId}`, session.user.id);
-    if (!isMemberH) {
+    // verify is in chat
+    const isMember = (await db.hmget(
+      `chat:members:${chatId}`,
+      session.user.id
+    )) as unknown as { [key: string]: chatMember };
+    if (!isMember) {
       return new Response("unauthorized", { status: 401 });
     }
 
-    // fill missing data
-    // id
-    // sender id
-    // chat id
-    // text
-    // timestamp
+    console.log(isMember);
+
+    // verify no mute
+    if (isMember[session.user.id].isMute || isMember[session.user.id].isBan) {
+      return new Response("muted", { status: 401 });
+    }
 
     const timeStamp = Date.now();
     const messageData: Message = {

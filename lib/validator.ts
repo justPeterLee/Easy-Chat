@@ -82,3 +82,9 @@ export const joinChatValidator = z
   });
 
 export type JoinChat = z.infer<typeof joinChatValidator>;
+
+// User Action
+export const userActionValidator = z.object({
+  userId: z.number(),
+  chatId: z.number(),
+});

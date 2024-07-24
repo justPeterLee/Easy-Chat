@@ -81,7 +81,12 @@ export default async function ChatRoom({ params }: PageProps) {
           <CRSendMessage chatId={params.chatId} />
         </div>
         <div className="w-[15rem] bg-[#1f1f1f]">
-          {chatData.members && <CRMemberList memberList={chatData.members} />}
+          {chatData.members && (
+            <CRMemberList
+              memberList={chatData.members}
+              chatId={params.chatId}
+            />
+          )}
         </div>
       </div>
     </main>

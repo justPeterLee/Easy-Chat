@@ -232,6 +232,7 @@ export function CRSendMessage({ chatId }: { chatId: string }) {
         message: messageData.message,
         chatId,
       });
+
       reset();
       textRef.current!.blur();
     } catch (err) {
@@ -318,8 +319,10 @@ export function CRSendMessage({ chatId }: { chatId: string }) {
 
 export function CRMemberList({
   memberList,
+  chatId,
 }: {
   memberList: { [key: string]: chatMember };
+  chatId: string;
 }) {
   const memberListArray = useMemo(() => {
     const memberKeyArray = Object.keys(memberList);
@@ -335,16 +338,55 @@ export function CRMemberList({
         members - {memberListArray.length}
       </p>
       {memberListArray.map((member) => {
-        return <MemberCard memberInfo={member} key={member.id} />;
+        return (
+          <MemberCard memberInfo={member} key={member.id} chatId={chatId} />
+        );
       })}
     </div>
   );
 }
 
-function MemberCard({ memberInfo }: { memberInfo: chatMember }) {
+function MemberCard({
+  memberInfo,
+  chatId,
+}: {
+  memberInfo: chatMember;
+  chatId: string;
+}) {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [isClicked, setIsClicked] = useState(false);
 
+  const handleMute = async () => {
+    try {
+      await axios.post("/api/chat/user/mute", {
+        userId: parseInt(memberInfo.id),
+        chatId: parseInt(chatId),
+      });
+    } catch (err) {
+      console.log("mute error: ", err);
+    }
+  };
+
+  const handleBan = async () => {
+    try {
+      await axios.post("/api/chat/user/ban", {
+        userId: parseInt(memberInfo.id),
+        chatId: parseInt(chatId),
+      });
+    } catch (err) {
+      console.log("ban error: ", err);
+    }
+  };
+  const handleKick = async () => {
+    try {
+      await axios.post("/api/chat/user/kick", {
+        userId: parseInt(memberInfo.id),
+        chatId: parseInt(chatId),
+      });
+    } catch (err) {
+      console.log("kick error: ", err);
+    }
+  };
   return (
     <>
       <div
@@ -387,7 +429,13 @@ function MemberCard({ memberInfo }: { memberInfo: chatMember }) {
             className="rounded flex flex-col w-auto"
             onClick={() => setIsClicked(false)}
           >
-            <Button variant={"ghost"} className="hover:brightness-[.8]">
+            <Button
+              onClick={() => {
+                handleMute();
+              }}
+              variant={"ghost"}
+              className="hover:brightness-[.8]"
+            >
               mute
             </Button>
             <Button variant={"ghost"} className="hover:brightness-[.8]">
