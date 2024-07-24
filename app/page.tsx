@@ -20,21 +20,6 @@ async function getPublicChatList(
     }[];
 
     if (userChatsList.length) {
-      // const publicChatList: PublicChatList = await Promise.all(
-      //   userChatsList.map(async (chatCodes): Promise<PublicChat> => {
-      //     const pubChat = await db.hgetall(`chat:public:${chatCodes.code}`);
-      //     return pubChat as unknown as PublicChat;
-      //   })
-      // ).catch((e) => {
-      //   console.log("error ", e);
-      //   return [];
-      // });
-
-      // if (publicChatList.length) {
-      //   // get chat info
-      //   // members amount
-      // }
-
       const chatInfoList: allChatInfo[] = await Promise.all(
         userChatsList.map(async (chatCodes) => {
           const allChatInfo = await Promise.all([

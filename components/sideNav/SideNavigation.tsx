@@ -1,13 +1,10 @@
 // "use client";
 "use server";
 import { Suspense } from "react";
-import Image from "next/image";
 import { getServerSession } from "next-auth";
-import axios from "axios";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
-import { db } from "@/lib/redis";
-import { Button } from "../ui/Button";
-import { notFound } from "next/navigation";
+import { db, fetchRedis } from "@/lib/redis";
+
 import { PubChatList, UserTab } from "./SideNavComponents";
 // get public chat info
 async function getChatPubs(
@@ -16,21 +13,27 @@ async function getChatPubs(
   try {
     if (!userId) return [];
 
-    const userChatList = (await db.zrange(`chatlist:${userId}`, 0, -1)) as {
-      code: string;
-      id: number;
-    }[];
+    const userChatListFetch = (await fetchRedis(
+      "zrange",
+      `chatlist:${userId}`,
+      0,
+      -1
+    )) as string[];
 
-    // console.log(sortedList);
     // get public list keys
 
-    if (userChatList.length) {
+    if (userChatListFetch.length) {
       // is valid user / public list key
       // create promise array (parallel data fetch)
 
       const publicChat: any = await Promise.all(
-        userChatList.map(async (chatCodes) => {
-          const pubChat = await db.hgetall(`chat:public:${chatCodes.code}`);
+        userChatListFetch.map(async (chatCodes) => {
+          const pubChatCodes: {
+            code: string;
+            id: number;
+          } = JSON.parse(chatCodes);
+
+          const pubChat = await db.hgetall(`chat:public:${pubChatCodes.code}`);
           return pubChat;
         })
       ).catch((e) => {

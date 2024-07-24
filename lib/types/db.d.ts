@@ -16,8 +16,8 @@ interface chatInfo {
   description: string;
   password: string;
   privacy: boolean;
-  memberId: string;
-  messageId: string;
+  memberId: number;
+  messageId: number;
 }
 interface generalChatInfo {
   title: string;
