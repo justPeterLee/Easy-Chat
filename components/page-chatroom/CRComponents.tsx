@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Modal } from "../modal/Backdrop";
 import { userActionValidator } from "@/lib/validator";
+import { VscLoading } from "react-icons/vsc";
 
 export function CRTitle({
   title,
@@ -356,14 +357,29 @@ function MemberCard({
 }) {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [isClicked, setIsClicked] = useState(false);
-
+  const [loading, setLoading] = useState(false);
+  const [userState, setUserState] = useState({
+    mute: memberInfo.isMute,
+    ban: memberInfo.isBan,
+  });
   const handleUserAction = async (userAction: "mute" | "kick" | "ban") => {
     try {
       const validUserAction = userActionValidator.parse({
         userId: parseInt(memberInfo.id),
         chatId: parseInt(chatId),
       });
-      await axios.post(`/api/chat/user/${userAction}`, validUserAction);
+      setLoading(true);
+      const newState: { data: { state: boolean } } = await axios.post(
+        `/api/chat/user/${userAction}`,
+        validUserAction
+      );
+      setLoading(false);
+      if (userAction !== "kick") {
+        setUserState(() => ({
+          ...userState,
+          [userAction]: newState.data.state,
+        }));
+      }
     } catch (err) {
       console.log("user action failed: ", err);
     }
@@ -387,7 +403,18 @@ function MemberCard({
         />
         <div className="flex items-center gap-2">
           <p>{memberInfo.username}</p>
-          <p className="text-xs">{memberInfo.role === "owner" && "(owner)"}</p>
+          {memberInfo.role === "owner" && (
+            <p className="text-xs">{"(owner)"}</p>
+          )}
+
+          <div>
+            {(memberInfo.isMute || userState.mute) && (
+              <p className="text-xs">{"(muted)"}</p>
+            )}
+            {(memberInfo.isBan || userState.ban) && (
+              <p className="text-xs">{"(banned)"}</p>
+            )}
+          </div>
         </div>
       </div>
       {isClicked && cardRef.current && (
@@ -405,25 +432,24 @@ function MemberCard({
               }px`,
             },
           }}
-          modalClassName={` p-1 bg-neutral-700`}
+          modalClassName={` p-0 bg-neutral-700`}
         >
-          <div
-            className="rounded flex flex-col w-auto"
-            onClick={() => setIsClicked(false)}
-          >
+          <div className="rounded flex flex-col w-auto">
             <Button
               onClick={() => {
                 handleUserAction("mute");
               }}
+              disabled={loading}
               variant={"ghost"}
               className="hover:brightness-[.8]"
             >
-              mute
+              {!userState.mute ? "mute" : "unmute"}
             </Button>
             <Button
               onClick={() => {
                 handleUserAction("kick");
               }}
+              disabled={loading}
               variant={"ghost"}
               className="hover:brightness-[.8]"
             >
@@ -433,11 +459,21 @@ function MemberCard({
               onClick={() => {
                 handleUserAction("ban");
               }}
+              disabled={loading}
               variant={"ghost"}
               className="hover:brightness-[.8]"
             >
-              ban
+              {!userState.ban ? "ban" : "unban"}
             </Button>
+
+            {loading && (
+              <div className="w-full h-full absolute">
+                <div className="w-full h-full bg-neutral-700 opacity-90" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <VscLoading className="animate-spin" />
+                </div>
+              </div>
+            )}
           </div>
         </Modal>
       )}

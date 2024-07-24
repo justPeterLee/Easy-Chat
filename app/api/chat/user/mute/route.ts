@@ -2,8 +2,7 @@ import { db } from "@/lib/redis";
 import { userActionValidator } from "@/lib/validator";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
-import { NextRequest } from "next/server";
-
+import { NextRequest, NextResponse } from "next/server";
 export const POST = async (req: NextRequest) => {
   try {
     // authorize user
@@ -35,16 +34,17 @@ export const POST = async (req: NextRequest) => {
     )) as unknown as { [key: string]: chatMember };
 
     // create new attacked user info
+    const newMuteState = !userData[validUserData.userId].isMute;
     const newUserData: chatMember = {
       ...userData[validUserData.userId],
-      isMute: !userData[validUserData.userId].isMute,
+      isMute: newMuteState,
     };
 
     await db.hmset(`chat:members:${validUserData.chatId}`, {
       [validUserData.userId]: newUserData,
     });
 
-    return new Response("OK", { status: 200 });
+    return NextResponse.json({ state: newMuteState }, { status: 200 });
   } catch (err) {
     console.log(err);
     return new Response("unable to mute user", { status: 500 });
