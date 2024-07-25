@@ -10,16 +10,9 @@ import { cn } from "@/lib/utils";
 import { Modal } from "../modal/Backdrop";
 import { userActionValidator } from "@/lib/validator";
 import { VscLoading } from "react-icons/vsc";
+import Link from "next/link";
 
-export function CRTitle({
-  title,
-  description,
-  code,
-}: {
-  title: string;
-  description: string;
-  code: string;
-}) {
+export function CRTitle({ title, code }: { title: string; code: string }) {
   return (
     <div className="flex flex-col gap-1 w-full px-10 py-4 shadow-md">
       <span className="text-xl flex gap-3 items-center">
@@ -32,10 +25,6 @@ export function CRTitle({
       </span> */}
     </div>
   );
-}
-
-export function CRMemebers() {
-  return <div></div>;
 }
 
 export function CRShowMessage({ messages }: { messages: chatMessages[] }) {
@@ -59,11 +48,7 @@ export function CRShowMessage({ messages }: { messages: chatMessages[] }) {
           if (messages.length - 1 === index) {
             return (
               <Fragment key={message.id}>
-                <CRShowMessageUser
-                  key={message.id}
-                  message={message}
-                  index={index}
-                />
+                <CRShowMessageUser key={message.id} message={message} />
                 <CRShowMessageBarDate timestamp={message.timestamp} />
               </Fragment>
             );
@@ -78,11 +63,7 @@ export function CRShowMessage({ messages }: { messages: chatMessages[] }) {
           if (curDay !== nextDay) {
             return (
               <Fragment key={message.id}>
-                <CRShowMessageUser
-                  key={message.id}
-                  message={message}
-                  index={index}
-                />
+                <CRShowMessageUser key={message.id} message={message} />
                 <CRShowMessageBarDate timestamp={message.timestamp} />
               </Fragment>
             );
@@ -90,36 +71,18 @@ export function CRShowMessage({ messages }: { messages: chatMessages[] }) {
 
           // message only
           if (messages[index].senderId === messages[index + 1].senderId) {
-            return (
-              <CRSendMessageOnly
-                key={message.id}
-                message={message}
-                index={index}
-              />
-            );
+            return <CRShowMessageOnly key={message.id} message={message} />;
           }
 
           // new user
-          return (
-            <CRShowMessageUser
-              key={message.id}
-              message={message}
-              index={index}
-            />
-          );
+          return <CRShowMessageUser key={message.id} message={message} />;
         })}
       </div>
     </div>
   );
 }
 
-function CRShowMessageUser({
-  message,
-  index,
-}: {
-  message: chatMessages;
-  index: number;
-}) {
+function CRShowMessageUser({ message }: { message: chatMessages }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState({ image: "", username: "" });
   const [error, setError] = useState(false);
@@ -176,13 +139,7 @@ function CRShowMessageUser({
   );
 }
 
-function CRSendMessageOnly({
-  message,
-  index,
-}: {
-  message: chatMessages;
-  index: number;
-}) {
+function CRShowMessageOnly({ message }: { message: chatMessages }) {
   const [isHover, setIsHover] = useState(false);
   return (
     <div
@@ -381,6 +338,7 @@ function MemberCard({
         }));
       }
     } catch (err) {
+      setLoading(false);
       console.log("user action failed: ", err);
     }
   };
@@ -445,16 +403,7 @@ function MemberCard({
             >
               {!userState.mute ? "mute" : "unmute"}
             </Button>
-            <Button
-              onClick={() => {
-                handleUserAction("kick");
-              }}
-              disabled={loading}
-              variant={"ghost"}
-              className="hover:brightness-[.8]"
-            >
-              kick
-            </Button>
+
             <Button
               onClick={() => {
                 handleUserAction("ban");
@@ -478,5 +427,23 @@ function MemberCard({
         </Modal>
       )}
     </>
+  );
+}
+
+export function CRBanned() {
+  return (
+    <main className="flex flex-col  text-white bg-neutral-800 h-screen w-full relative overflow-hidden">
+      <Modal onClose={() => {}} modalClassName="p-6">
+        <div className="flex flex-col justify-center items-center gap-5">
+          <p>youve been banished (banned)</p>
+          <Link
+            href={"/"}
+            className="p-2 bg-neutral-700 text-red-600 rounded hover:brightness-75 duration-75 text-sm"
+          >
+            leave chat
+          </Link>
+        </div>
+      </Modal>
+    </main>
   );
 }

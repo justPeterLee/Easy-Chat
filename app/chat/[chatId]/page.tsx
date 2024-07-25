@@ -1,10 +1,12 @@
 import {
+  CRBanned,
   CRMemberList,
   CRSendMessage,
   CRShowMessage,
   CRTitle,
 } from "@/components/page-chatroom/CRComponents";
 import { db, fetchRedis } from "@/lib/redis";
+import { chatArrayToObj, memberArraytoObj } from "@/lib/utils";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
@@ -17,94 +19,50 @@ interface PageProps {
 
 async function validateUser(chatId: string, userId: string) {
   try {
-    // const isValid = await db.sismember(`mem_list:${chatId}`, userId);
-    // return isValid;
-
-    const isMember = (await fetchRedis(
+    const fetchIsMember = (await fetchRedis(
       `hmget`,
       `chat:members:${chatId}`,
       userId
     )) as string[];
 
-    if (!isMember[0]) {
-      return null;
+    if (!fetchIsMember[0]) return null;
+
+    const isMember: chatMember = JSON.parse(fetchIsMember[0]);
+
+    if (isMember.isBan) return "BANNED";
+
+    // auto join
+    const fetchChatList = (await fetchRedis(
+      "zrange",
+      `chatlist:${userId}`,
+      0,
+      -1
+    )) as string[];
+
+    const chatList = fetchChatList.filter((chat: string) => {
+      const chatCodes: { code: string; id: number } = JSON.parse(chat);
+      return chatCodes.id.toString() === chatId;
+    });
+
+    if (!chatList.length) {
+      const fetchPubCode = (await fetchRedis(
+        "hmget",
+        `chat:${chatId}`,
+        "code"
+      )) as string[];
+      const chatlistInput = { code: fetchPubCode[0], id: chatId };
+      await db.zadd(`chatlist:${userId}`, {
+        score: Date.now(),
+        member: JSON.stringify(chatlistInput),
+      });
     }
 
-    return JSON.parse(isMember[0]);
+    return isMember;
   } catch (error) {
-    // notFound()
-    return false;
+    return null;
   }
 }
 
-async function isBanned(chatId: string, userId: string) {
-  try {
-    // check user list
-  } catch (err) {
-    console.log(err);
-  }
-}
-async function isKicked(chatId: string, userId: string) {
-  try {
-    // if in chat list and not in member list
-  } catch (err) {
-    console.log(err);
-  }
-}
-function chatArrayToObj(arr: string[]): chatInfo {
-  const chatInfo: chatInfo = {
-    title: "",
-    code: "",
-    image: "",
-    description: "",
-    password: "",
-    privacy: false,
-    memberId: 0,
-    messageId: 0,
-  } as const;
-  for (let i = 0; i < arr.length; i += 2) {
-    const key = arr[i];
-    const value: string = arr[i + 1];
-    let formatValue: boolean | number | string;
-
-    if (value === "false" && key === "privacy") {
-      formatValue = false;
-      chatInfo[key] = formatValue;
-    } else if (value === "true" && key === "privacy") {
-      formatValue = true;
-      chatInfo[key] = formatValue;
-    } else if (
-      !isNaN(Number(value)) &&
-      value != "" &&
-      (key === "memberId" || key === "messageId")
-    ) {
-      formatValue = Number(value);
-      chatInfo[key] = formatValue;
-    } else if (
-      key === "title" ||
-      key === "code" ||
-      key === "image" ||
-      key === "description" ||
-      key === "password"
-    ) {
-      formatValue = value;
-      chatInfo[key] = formatValue;
-    }
-  }
-  return chatInfo;
-}
-
-function memberArraytoObj(arr: string[]): { [key: string]: chatMember } {
-  const memberObj: { [key: string]: chatMember } = {};
-  for (let i = 0; i < arr.length; i += 2) {
-    const key = arr[i];
-    const value: string = arr[i + 1];
-    let formatValue = JSON.parse(value) as chatMember;
-
-    memberObj[key] = formatValue;
-  }
-  return memberObj;
-}
 async function getChatData(chatId: string) {
   try {
     const fetchChat = (await fetchRedis(
@@ -121,11 +79,6 @@ async function getChatData(chatId: string) {
 
     const members = memberArraytoObj(fetchMembers);
 
-    const dbMessages: chatMessages[] = await db.zrange(
-      `chat:messages:${chatId}`,
-      0,
-      -1
-    );
     const fetchMessages = (await fetchRedis(
       "zrange",
       `chat:messages:${chatId}`,
@@ -155,14 +108,14 @@ export default async function ChatRoom({ params }: PageProps) {
     return <>no chat</>;
   }
 
+  if (valid === "BANNED") {
+    return <CRBanned />;
+  }
+
   const chatData = await getChatData(params.chatId);
   return (
     <main className="flex flex-col  text-white bg-neutral-800 h-screen w-full relative overflow-hidden">
-      <CRTitle
-        title={chatData.chat.title}
-        description={chatData.chat.description}
-        code={chatData.chat.code}
-      />
+      <CRTitle title={chatData.chat.title} code={chatData.chat.code} />
 
       {/* {JSON.stringify(chatData)} */}
       <div className="flex flex-grow w-full">
