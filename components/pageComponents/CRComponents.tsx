@@ -12,12 +12,15 @@ import { userActionValidator } from "@/lib/validator";
 import { VscLoading } from "react-icons/vsc";
 import Link from "next/link";
 import { FaGear } from "react-icons/fa6";
+import { MenuModal } from "../modal/MenuModal";
+import { LeaveChat } from "../modal/chatAction/ChatAction";
 
 export function CRTitle({
   title,
   code,
   chatInfo,
   userId,
+  chatId,
 }: {
   title: string;
   code: string;
@@ -29,6 +32,7 @@ export function CRTitle({
     messages: any[];
   };
   userId: string;
+  chatId: number;
 }) {
   return (
     <div className="flex items-center justify-between gap-1 w-full px-10 py-4 shadow-md  ">
@@ -37,7 +41,7 @@ export function CRTitle({
         <h1>{title}</h1>
         <p className="text-neutral-500 text-xs">code: {code}</p>
       </span>
-      <CREdit chatInfo={chatInfo} userId={userId} />
+      <CREdit chatInfo={chatInfo} userId={userId} chatId={chatId} />
     </div>
   );
 }
@@ -466,6 +470,7 @@ export function CRBanned() {
 export function CREdit({
   chatInfo,
   userId,
+  chatId,
 }: {
   chatInfo: {
     chat: ChatInfo;
@@ -475,6 +480,7 @@ export function CREdit({
     messages: any[];
   };
   userId: string;
+  chatId: number;
 }) {
   const editRef = useRef<HTMLDivElement | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -494,34 +500,24 @@ export function CREdit({
         </div>
       </div>
       {showEditModal && editRef.current && (
-        <Modal
+        <MenuModal
           onClose={() => {
             setShowEditModal(false);
           }}
-          invisBack={true}
-          modalCustomCords={{
-            state: true,
-            style: {
-              top: `${editRef.current.getBoundingClientRect().bottom + 2}px`,
-              right: `${
-                innerWidth - editRef.current.getBoundingClientRect().right
-              }px`,
-            },
-          }}
-          modalClassName={`p-0 bg-neutral-700`}
+          parentRef={editRef.current}
         >
-          <div className="flex flex-col">
-            <Button variant={"ghost"} className="hover:brightness-75 p-2">
-              edit chat
-            </Button>
-            <Button
-              variant={"ghost"}
-              className="hover:brightness-75 p-2 text-red-600"
-            >
-              leave chat
-            </Button>
-          </div>
-        </Modal>
+          <LeaveChat
+            onClose={() => {
+              setShowEditModal(false);
+            }}
+            chatInfo={{
+              code: chatInfo.chat.code,
+              id: chatId,
+              owner: chatInfo.chat.owner,
+            }}
+            userId={userId}
+          />
+        </MenuModal>
       )}
     </>
   );

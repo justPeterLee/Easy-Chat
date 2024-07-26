@@ -4,7 +4,7 @@ import {
   CRSendMessage,
   CRShowMessage,
   CRTitle,
-} from "@/components/page-chatroom/CRComponents";
+} from "@/components/pageComponents/CRComponents";
 import { db, fetchRedis } from "@/lib/redis";
 import { chatArrayToObj, memberArraytoObj } from "@/lib/utils";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
@@ -120,6 +120,7 @@ export default async function ChatRoom({ params }: PageProps) {
         code={chatData.chat.code}
         chatInfo={chatData}
         userId={session.user.id}
+        chatId={parseInt(params.chatId)}
       />
 
       {/* {JSON.stringify(chatData)} */}

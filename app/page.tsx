@@ -1,7 +1,7 @@
 import {
   DBChatlist,
   DBTitle,
-} from "@/components/page-chatroom/DashboardComponents";
+} from "@/components/pageComponents/DashboardComponents";
 import { db, fetchRedis } from "@/lib/redis";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";

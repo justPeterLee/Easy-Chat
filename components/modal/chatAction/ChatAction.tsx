@@ -14,7 +14,7 @@ export function LeaveChat({
   userId,
 }: {
   onClose: () => void;
-  chatInfo: AllChatInfo;
+  chatInfo: { code: string; id: number; owner: number };
   userId: string;
 }) {
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -32,7 +32,7 @@ export function LeaveChat({
       handleClose();
 
       const validatedData = deleteChatValidator.parse({
-        chatCode: chatInfo.chatInfo?.code,
+        chatCode: chatInfo.code,
         chatId: chatInfo.id,
         forceDelete,
         newOwner,
@@ -66,7 +66,7 @@ export function LeaveChat({
 
       {showWarningModal && (
         <Modal onClose={handleClose}>
-          {chatInfo.chatInfo!.owner.toString() === userId ? (
+          {chatInfo.owner.toString() === userId ? (
             <OwnerLC
               chatId={chatInfo.id}
               handleLeave={(forceDelete, newOwner) => {

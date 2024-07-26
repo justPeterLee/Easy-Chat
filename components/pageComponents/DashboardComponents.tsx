@@ -119,7 +119,11 @@ export function GCCard({
             onClose={() => {
               setModalState(false);
             }}
-            chatInfo={chatInfo}
+            chatInfo={{
+              code: chatInfo.chatInfo!.code,
+              id: chatInfo.id,
+              owner: chatInfo.chatInfo!.owner,
+            }}
             userId={userId!}
           />
         </MenuModal>
