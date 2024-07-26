@@ -1,13 +1,9 @@
 "use client";
 import Link from "next/link";
 import { Button } from "../ui/Button";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { GCModal } from "../modal/chatModal/GCModal";
-import { Modal } from "../modal/Backdrop";
 import { cn } from "@/lib/utils";
-import axios from "axios";
-import { IoMdArrowDropdown } from "react-icons/io";
-import { deleteChatValidator } from "@/lib/validator";
 import { RxDotsVertical } from "react-icons/rx";
 import { LeaveChat } from "../modal/chatAction/ChatAction";
 import { MenuModal } from "../modal/MenuModal";
