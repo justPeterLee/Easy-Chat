@@ -15,8 +15,8 @@ export function decrypt(code: string, storedCode: string) {
   return bcrypt.compareSync(code, storedCode);
 }
 
-export function chatArrayToObj(arr: string[]): chatInfo {
-  const chatInfo: chatInfo = {
+export function chatArrayToObj(arr: string[]): ChatInfo {
+  const chatInfo: ChatInfo = {
     title: "",
     code: "",
     image: "",
@@ -59,12 +59,12 @@ export function chatArrayToObj(arr: string[]): chatInfo {
   return chatInfo;
 }
 
-export function memberArraytoObj(arr: string[]): { [key: string]: chatMember } {
-  const memberObj: { [key: string]: chatMember } = {};
+export function memberArraytoObj(arr: string[]): { [key: string]: ChatMember } {
+  const memberObj: { [key: string]: ChatMember } = {};
   for (let i = 0; i < arr.length; i += 2) {
     const key = arr[i];
     const value: string = arr[i + 1];
-    let formatValue = JSON.parse(value) as chatMember;
+    let formatValue = JSON.parse(value) as ChatMember;
 
     memberObj[key] = formatValue;
   }

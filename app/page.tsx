@@ -2,7 +2,7 @@ import {
   DBChatlist,
   DBTitle,
 } from "@/components/page-chatroom/DashboardComponents";
-import { db } from "@/lib/redis";
+import { db, fetchRedis } from "@/lib/redis";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 
@@ -19,32 +19,96 @@ async function getPublicChatList(
       id: number;
     }[];
 
-    if (userChatsList.length) {
+    const fetchChatList = (await fetchRedis(
+      "zrange",
+      `chatlist:${userId}`,
+      0,
+      1
+    )) as string[];
+
+    if (!fetchChatList.length) throw new Error("no chats");
+
+    const chatList: { code: string; id: number }[] = fetchChatList.map((chat) =>
+      JSON.parse(chat)
+    );
+
+    if (chatList.length) {
       const chatInfoList: AllChatInfo[] = await Promise.all(
-        userChatsList.map(async (chatCodes) => {
-          const allChatInfo = await Promise.all([
-            (await db.hmget(
+        chatList.map(async (chatCodes) => {
+          const fetchAllChatInfo = await Promise.all([
+            (await fetchRedis(
+              "hmget",
               `chat:${chatCodes.id}`,
               "title",
               "privacy",
               "code",
               "image",
               "owner"
-            )) as unknown as GeneralChatInfo,
+            )) as string[] | null[],
             (await db.hlen(`chat:members:${chatCodes.id}`)) as number,
-            (await db.zrange(
+            (await fetchRedis(
+              "zrange",
               `chat:messages:${chatCodes.id}`,
               0,
               2
-            )) as unknown as ChatMessages[],
+            )) as string[],
           ]);
+
+          const key: ["title", "privacy", "code", "image", "owner"] = [
+            "title",
+            "privacy",
+            "code",
+            "image",
+            "owner",
+          ];
+          const chatInfoNull = fetchAllChatInfo[0].filter(
+            (chatInfo) => chatInfo !== null
+          );
+
+          const chatInfo: GeneralChatInfo | null =
+            chatInfoNull.length === key.length
+              ? { title: "", privacy: false, code: "", image: "", owner: 0 }
+              : null;
+
+          if (chatInfo) {
+            fetchAllChatInfo[0].forEach((info, index) => {
+              const chatKey = key[index];
+              let formatInfo;
+
+              if (info === "false" && chatKey === "privacy") {
+                formatInfo = false;
+                chatInfo[chatKey] = formatInfo;
+              } else if (info === "true" && chatKey === "privacy") {
+                formatInfo = true;
+                chatInfo[chatKey] = formatInfo;
+              } else if (!isNaN(Number(info)) && chatKey === "owner") {
+                formatInfo = Number(info);
+                chatInfo[chatKey] = formatInfo;
+              } else {
+                formatInfo = info ? info : "";
+                if (
+                  chatKey === "title" ||
+                  chatKey === "code" ||
+                  chatKey === "image"
+                ) {
+                  chatInfo[chatKey] = formatInfo;
+                }
+              }
+            });
+          }
+
+          const members = fetchAllChatInfo[1];
+          const messages: ChatMessages[] = fetchAllChatInfo[2].map((message) =>
+            JSON.parse(message)
+          );
 
           const allChatInfoObj = {
             id: chatCodes.id,
-            chatInfo: allChatInfo[0],
-            members: allChatInfo[1],
-            messages: allChatInfo[2],
+            chatInfo,
+            members,
+            messages,
           };
+
           return allChatInfoObj;
         })
       );

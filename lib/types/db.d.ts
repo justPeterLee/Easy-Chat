@@ -25,12 +25,12 @@ interface GeneralChatInfo {
   privacy: boolean;
   code: string;
   image: string;
-  owner: string;
+  owner: number;
 }
 
 interface AllChatInfo {
   id: number;
-  chatInfo: GeneralChatInfo;
+  chatInfo: GeneralChatInfo | null;
   members: number;
   messages: chatMessages[];
 }
