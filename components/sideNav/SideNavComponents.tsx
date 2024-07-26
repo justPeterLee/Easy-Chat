@@ -22,7 +22,6 @@ export function PubChatList({
         />
       )}
       <div className="text-white flex-col">
-        {/* <p className="text-white">{JSON.stringify(chatList)}</p> */}
         <span className="mx-3 px-5 flex text-sm justify-between items-center font-bold mb-3">
           <p>CHANNELS</p>
           <Button

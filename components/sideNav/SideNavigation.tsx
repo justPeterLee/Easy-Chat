@@ -20,12 +20,9 @@ async function getChatPubs(
       -1
     )) as string[];
 
-    // get public list keys
-
     if (userChatListFetch.length) {
       // is valid user / public list key
       // create promise array (parallel data fetch)
-
       const publicChat: any = await Promise.all(
         userChatListFetch.map(async (chatCodes) => {
           const pubChatCodes: {
@@ -67,26 +64,15 @@ export async function SideNavigation() {
               <div className="w-[60px] h-[60px] rounded-full bg-neutral-500" />
             </div>
             <div className=" w-[60%]  flex  items-center">
-              <p>{session === undefined ? "loading..." : "no user"}</p>
+              <p>{session === undefined ? "loading..." : "username"}</p>
             </div>
           </>
         )}
       </div>
-      {session ? (
-        <Suspense fallback={<div>Loading...</div>}>
-          <PubChatList chatList={chatList} />
-        </Suspense>
-      ) : (
-        <>nothing</>
-      )}
+
+      <Suspense fallback={<div>Loading...</div>}>
+        <PubChatList chatList={chatList} />
+      </Suspense>
     </div>
   );
 }
-
-// export function
-
-// user
-
-// channels
-
-// recent messages (memebers)
