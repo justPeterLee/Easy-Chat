@@ -23,7 +23,7 @@ export const POST = async (req: NextRequest) => {
     if (isOwner[session.user.id].role !== "owner")
       return new Response("unauthorize", { status: 401 });
 
-    // user being mute is not owner
+    // user being banned is not owner
     if (isOwner[session.user.id].id === validUserData.userId.toString()) {
       return new Response("unable to ban owner", { status: 500 });
     }

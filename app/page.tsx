@@ -14,11 +14,6 @@ async function getPublicChatList(
       return [];
     }
 
-    const userChatsList = (await db.zrange(`chatlist:${userId}`, 0, -1)) as {
-      code: string;
-      id: number;
-    }[];
-
     const fetchChatList = (await fetchRedis(
       "zrange",
       `chatlist:${userId}`,
@@ -31,6 +26,8 @@ async function getPublicChatList(
     const chatList: { code: string; id: number }[] = fetchChatList.map((chat) =>
       JSON.parse(chat)
     );
+
+    console.log(fetchChatList);
 
     if (chatList.length) {
       const chatInfoList: AllChatInfo[] = await Promise.all(
@@ -123,9 +120,10 @@ async function getPublicChatList(
 export default async function Dashboard() {
   const session = await getServerSession(authOption);
   const publicChatList = await getPublicChatList(session?.user.id);
+  // console.log(publicChatList);
   return (
     <>
-      <main className="w-screen h-screen bg-neutral-800 p-4 px-10 flex flex-col gap-4">
+      <main className="flex-grow h-screen bg-neutral-800 p-4 px-10 flex flex-col gap-4">
         <DBTitle />
         <div className="w-full h-auto">
           <section className=" grid grid-cols-[repeat(auto-fill,_minmax(24rem,1fr))] gap-[1.5rem]  w-full h-full">

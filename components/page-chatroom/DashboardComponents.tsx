@@ -286,7 +286,7 @@ export function DBLeaveChatOwner({
               <IoMdArrowDropdown color="#737373" className="-translate-x-1/2" />
             </Button>
           </div>
-          {showMenu && selectedRef.current && (
+          {showMenu && selectedRef.current && memberList.length > 1 && (
             <Modal
               invisBack={true}
               modalCustomCords={{
@@ -306,23 +306,7 @@ export function DBLeaveChatOwner({
               <div className="bg-[#383838] w-[12rem] rounded p-1 flex flex-col gap-1">
                 {memberList.map((member) => {
                   if (member.role === "owner") {
-                    return (
-                      <div
-                        key={member.id}
-                        onClick={() => {
-                          setSelectedOwner(null);
-                          setShowMenu(false);
-                        }}
-                        className={cn(
-                          "flex items-center gap-3 bg-neutral-600 p-2 rounded  cursor-pointer text-neutral-400",
-                          {
-                            "bg-neutral-800": member.id == selectedOwner?.id,
-                          }
-                        )}
-                      >
-                        select new owner
-                      </div>
-                    );
+                    return <Fragment key={member.id} />;
                   }
                   return (
                     <div
@@ -332,7 +316,7 @@ export function DBLeaveChatOwner({
                         setShowMenu(false);
                       }}
                       className={cn(
-                        "flex items-center gap-3 bg-neutral-600 p-2 rounded hover:brightness-75 cursor-pointer",
+                        "flex items-center gap-3  p-2 rounded hover:brightness-75 cursor-pointer",
                         {
                           "bg-neutral-800": member.id == selectedOwner?.id,
                         }

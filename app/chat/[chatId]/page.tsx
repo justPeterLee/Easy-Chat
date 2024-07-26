@@ -105,7 +105,7 @@ export default async function ChatRoom({ params }: PageProps) {
   const valid = await validateUser(params.chatId, session.user.id);
 
   if (!valid) {
-    return <>no chat</>;
+    return notFound();
   }
 
   if (valid === "BANNED") {
@@ -114,7 +114,7 @@ export default async function ChatRoom({ params }: PageProps) {
 
   const chatData = await getChatData(params.chatId);
   return (
-    <main className="flex flex-col  text-white bg-neutral-800 h-screen w-full relative overflow-hidden">
+    <main className="flex flex-col flex-grow  text-white bg-neutral-800 h-screen  relative overflow-hidden">
       <CRTitle title={chatData.chat.title} code={chatData.chat.code} />
 
       {/* {JSON.stringify(chatData)} */}

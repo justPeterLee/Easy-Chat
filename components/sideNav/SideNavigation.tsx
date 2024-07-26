@@ -54,7 +54,7 @@ export async function SideNavigation() {
   const chatList = await getChatPubs(session?.user.id);
 
   return (
-    <div className="flex flex-col z-30 bg-neutral-900 w-[20rem] h-screen">
+    <div className="flex flex-col z-30 bg-neutral-900 w-[16rem] h-screen">
       <div className="flex  items-center h-[5rem]    text-neutral-300 text-2xl hover:bg-neutral-700  duration-100  cursor-pointer rounded-lg m-3">
         {session ? (
           <UserTab session={session} />

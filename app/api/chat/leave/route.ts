@@ -27,7 +27,12 @@ export const POST = async (req: NextRequest) => {
           owner: validBody.newOwner.id,
         });
         await db.hset(`chat:members:${validBody.chatId}`, {
-          [validBody.newOwner.id]: { ...validBody.newOwner, role: "owner" },
+          [validBody.newOwner.id]: {
+            ...validBody.newOwner,
+            role: "owner",
+            isMute: false,
+            isBan: false,
+          },
         });
       }
     }

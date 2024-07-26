@@ -14,20 +14,17 @@ import Link from "next/link";
 
 export function CRTitle({ title, code }: { title: string; code: string }) {
   return (
-    <div className="flex flex-col gap-1 w-full px-10 py-4 shadow-md">
-      <span className="text-xl flex gap-3 items-center">
+    <div className="flex flex-col gap-1 w-full px-10 py-4 shadow-md  justify-center">
+      <span className="text-xl flex gap-3 items-center h-10">
         <h1 className="text-yellow-400">#</h1>
         <h1>{title}</h1>
         <p className="text-neutral-500 text-xs">code: {code}</p>
       </span>
-      {/* <span className="text-neutral-400">
-        <p>{description}</p>
-      </span> */}
     </div>
   );
 }
 
-export function CRShowMessage({ messages }: { messages: chatMessages[] }) {
+export function CRShowMessage({ messages }: { messages: ChatMessages[] }) {
   const scrollContainer = useRef<HTMLDivElement | null>(null);
   const scollToBottom = () => {
     scrollContainer.current!.scrollTop = scrollContainer.current!.scrollHeight;
@@ -82,7 +79,7 @@ export function CRShowMessage({ messages }: { messages: chatMessages[] }) {
   );
 }
 
-function CRShowMessageUser({ message }: { message: chatMessages }) {
+function CRShowMessageUser({ message }: { message: ChatMessages }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState({ image: "", username: "" });
   const [error, setError] = useState(false);
@@ -139,7 +136,7 @@ function CRShowMessageUser({ message }: { message: chatMessages }) {
   );
 }
 
-function CRShowMessageOnly({ message }: { message: chatMessages }) {
+function CRShowMessageOnly({ message }: { message: ChatMessages }) {
   const [isHover, setIsHover] = useState(false);
   return (
     <div
@@ -280,7 +277,7 @@ export function CRMemberList({
   memberList,
   chatId,
 }: {
-  memberList: { [key: string]: chatMember };
+  memberList: { [key: string]: ChatMember };
   chatId: string;
 }) {
   const memberListArray = useMemo(() => {
@@ -309,7 +306,7 @@ function MemberCard({
   memberInfo,
   chatId,
 }: {
-  memberInfo: chatMember;
+  memberInfo: ChatMember;
   chatId: string;
 }) {
   const cardRef = useRef<HTMLDivElement | null>(null);
