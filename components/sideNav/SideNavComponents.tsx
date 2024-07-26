@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "../ui/Button";
 import Image from "next/image";
-import { GCModal } from "../modal/GCModal";
+import { GCModal } from "../modal/chatModal/GCModal";
 import { Fragment, useState } from "react";
 export function PubChatList({
   chatList,

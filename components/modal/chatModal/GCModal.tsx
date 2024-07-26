@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Modal } from "./Backdrop";
-import { Button } from "../ui/Button";
+import { Modal } from "../Backdrop";
+import { Button } from "../../ui/Button";
 import { CreateGCModal } from "./CreateGCModal";
 import { JoinGCModal } from "./JoinGCModal";
 

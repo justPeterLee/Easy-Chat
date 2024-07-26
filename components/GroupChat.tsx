@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { Button } from "./ui/Button";
-import { CreateGCModal } from "./modal/CreateGCModal";
-import { GCModal } from "./modal/GCModal";
+import { CreateGCModal } from "./modal/chatModal/CreateGCModal";
+import { GCModal } from "./modal/chatModal/GCModal";
 export function CreateGroupChat() {
   const [showModal, setShowModal] = useState(false);
 

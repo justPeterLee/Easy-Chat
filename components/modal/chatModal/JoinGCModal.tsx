@@ -1,9 +1,9 @@
 import { useForm } from "react-hook-form";
-import { StandardInput } from "../ui/Input";
+import { StandardInput } from "../../ui/Input";
 import { JoinChat, joinChatValidator } from "@/lib/validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { Button } from "../ui/Button";
+import { Button } from "../../ui/Button";
 import { z } from "zod";
 import axios, { AxiosError } from "axios";
 export function JoinGCModal({

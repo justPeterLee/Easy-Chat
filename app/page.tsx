@@ -18,7 +18,7 @@ async function getPublicChatList(
       "zrange",
       `chatlist:${userId}`,
       0,
-      1
+      -1
     )) as string[];
 
     if (!fetchChatList.length) throw new Error("no chats");
@@ -26,8 +26,6 @@ async function getPublicChatList(
     const chatList: { code: string; id: number }[] = fetchChatList.map((chat) =>
       JSON.parse(chat)
     );
-
-    console.log(fetchChatList);
 
     if (chatList.length) {
       const chatInfoList: AllChatInfo[] = await Promise.all(
@@ -120,7 +118,6 @@ async function getPublicChatList(
 export default async function Dashboard() {
   const session = await getServerSession(authOption);
   const publicChatList = await getPublicChatList(session?.user.id);
-  // console.log(publicChatList);
   return (
     <>
       <main className="flex-grow h-screen bg-neutral-800 p-4 px-10 flex flex-col gap-4">

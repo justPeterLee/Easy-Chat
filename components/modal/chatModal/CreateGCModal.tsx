@@ -1,14 +1,14 @@
 "use client";
-import { SelectPicture, StandardInput, pfpImagesArray } from "../ui/Input";
+import { SelectPicture, StandardInput, pfpImagesArray } from "../../ui/Input";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../ui/Button";
+import { Button } from "../../ui/Button";
 import { customAlphabet } from "nanoid";
 import axios, { AxiosError } from "axios";
 import { CreateChat, createChatValidator } from "@/lib/validator";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { pfpImages } from "../ui/Input";
+import { pfpImages } from "../../ui/Input";
 
 export function CreateGCModal({
   onClose,

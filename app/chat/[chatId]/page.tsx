@@ -100,7 +100,7 @@ async function getChatData(chatId: string) {
 export default async function ChatRoom({ params }: PageProps) {
   const session = await getServerSession(authOption);
   if (!session) {
-    return <></>;
+    return notFound();
   }
   const valid = await validateUser(params.chatId, session.user.id);
 
@@ -115,7 +115,12 @@ export default async function ChatRoom({ params }: PageProps) {
   const chatData = await getChatData(params.chatId);
   return (
     <main className="flex flex-col flex-grow  text-white bg-neutral-800 h-screen  relative overflow-hidden">
-      <CRTitle title={chatData.chat.title} code={chatData.chat.code} />
+      <CRTitle
+        title={chatData.chat.title}
+        code={chatData.chat.code}
+        chatInfo={chatData}
+        userId={session.user.id}
+      />
 
       {/* {JSON.stringify(chatData)} */}
       <div className="flex flex-grow w-full">

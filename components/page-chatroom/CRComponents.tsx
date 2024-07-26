@@ -11,15 +11,33 @@ import { Modal } from "../modal/Backdrop";
 import { userActionValidator } from "@/lib/validator";
 import { VscLoading } from "react-icons/vsc";
 import Link from "next/link";
+import { FaGear } from "react-icons/fa6";
 
-export function CRTitle({ title, code }: { title: string; code: string }) {
+export function CRTitle({
+  title,
+  code,
+  chatInfo,
+  userId,
+}: {
+  title: string;
+  code: string;
+  chatInfo: {
+    chat: ChatInfo;
+    members: {
+      [key: string]: ChatMember;
+    };
+    messages: any[];
+  };
+  userId: string;
+}) {
   return (
-    <div className="flex flex-col gap-1 w-full px-10 py-4 shadow-md  justify-center">
+    <div className="flex items-center justify-between gap-1 w-full px-10 py-4 shadow-md  ">
       <span className="text-xl flex gap-3 items-center h-10">
         <h1 className="text-yellow-400">#</h1>
         <h1>{title}</h1>
         <p className="text-neutral-500 text-xs">code: {code}</p>
       </span>
+      <CREdit chatInfo={chatInfo} userId={userId} />
     </div>
   );
 }
@@ -442,5 +460,69 @@ export function CRBanned() {
         </div>
       </Modal>
     </main>
+  );
+}
+
+export function CREdit({
+  chatInfo,
+  userId,
+}: {
+  chatInfo: {
+    chat: ChatInfo;
+    members: {
+      [key: string]: ChatMember;
+    };
+    messages: any[];
+  };
+  userId: string;
+}) {
+  const editRef = useRef<HTMLDivElement | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  return (
+    <>
+      <div>
+        <div ref={editRef}>
+          <Button
+            variant={"ghost"}
+            className={cn({ "bg-neutral-700": showEditModal })}
+            onClick={() => {
+              setShowEditModal(true);
+            }}
+          >
+            <FaGear color="#808080" />
+          </Button>
+        </div>
+      </div>
+      {showEditModal && editRef.current && (
+        <Modal
+          onClose={() => {
+            setShowEditModal(false);
+          }}
+          invisBack={true}
+          modalCustomCords={{
+            state: true,
+            style: {
+              top: `${editRef.current.getBoundingClientRect().bottom + 2}px`,
+              right: `${
+                innerWidth - editRef.current.getBoundingClientRect().right
+              }px`,
+            },
+          }}
+          modalClassName={`p-0 bg-neutral-700`}
+        >
+          <div className="flex flex-col">
+            <Button variant={"ghost"} className="hover:brightness-75 p-2">
+              edit chat
+            </Button>
+            <Button
+              variant={"ghost"}
+              className="hover:brightness-75 p-2 text-red-600"
+            >
+              leave chat
+            </Button>
+          </div>
+        </Modal>
+      )}
+    </>
   );
 }
