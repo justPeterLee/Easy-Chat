@@ -9,6 +9,28 @@ import axios from "axios";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { deleteChatValidator } from "@/lib/validator";
 
+export function DBTitle() {
+  const [modalState, setModalState] = useState(false);
+  return (
+    <>
+      {modalState && <GCModal onClose={() => setModalState(false)} />}
+      <div className="flex justify-between items-center h-10 w-auto ">
+        <p className="text-xl text-white">Dashboard</p>
+        <div>
+          <Button
+            onClick={() => setModalState(true)}
+            className="bg-neutral-950 p-2 rounded"
+          >
+            <div className="flex justify-center items-center gap-2 text-sm">
+              <p>Add Chat</p>
+            </div>
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function DBChatlist({
   chatlist,
   userId,
@@ -60,11 +82,13 @@ export function GCCard({
 
       const data = {
         chatId: chatInfo.id,
-        chatCode: chatInfo.chatInfo.code,
+        chatCode: chatInfo.chatInfo!.code,
         forceDelete,
         newOwner,
       };
+
       const validChat = deleteChatValidator.parse(data);
+
       if (forceDelete || (newOwner === null && isOwner)) {
         await axios
           .post("/api/chat/delete", { chatId: validChat.chatId })
@@ -81,7 +105,8 @@ export function GCCard({
   };
   return (
     <>
-      <div className="h-40 w-auto bg-neutral-700  rounded-lg relative ">
+      <div className="h-40 w-auto bg-neutral-600  rounded-lg relative ">
+        {/* ========== body (click anywhere on modal to go to chat) ========== */}
         <Link
           href={`/chat/${chatInfo.id}`}
           className="h-40 w-full flex flex-col hover:brightness-[.8] duration-75"
@@ -89,18 +114,20 @@ export function GCCard({
           <div className="flex items-center justify-between gap-4 p-3 bg-neutral-900 rounded-t-lg">
             <img
               className="bg-neutral-500 h-10 w-10 rounded-full"
-              src={chatInfo.chatInfo.image}
+              src={chatInfo.chatInfo!.image}
             />
             <div className="flex flex-grow flex-col">
-              <p className="text-neutral-300">{chatInfo.chatInfo.title}</p>
+              <p className="text-neutral-300">{chatInfo.chatInfo!.title}</p>
               <span className="flex text-xs text-neutral-500 gap-2">
-                <p>privacy: {chatInfo.chatInfo.privacy ? "true" : "false"}</p>
+                <p>privacy: {chatInfo.chatInfo!.privacy ? "true" : "false"}</p>
                 <p>memebers: {chatInfo.members}</p>
-                <p>code: {chatInfo.chatInfo.code}</p>
+                <p>code: {chatInfo.chatInfo!.code}</p>
               </span>
             </div>
           </div>
         </Link>
+
+        {/* ========== options button (open options menu) ========== */}
         <div
           ref={buttonRef}
           className="text-sm text-neutral-400 absolute top-5 right-3"
@@ -116,6 +143,9 @@ export function GCCard({
           </Button>
         </div>
       </div>
+
+      {/* ========== options menu ========== */}
+
       {modalState && buttonRef.current && (
         <Modal
           onClose={() => {
@@ -133,6 +163,7 @@ export function GCCard({
           }}
           modalClassName={` p-0 bg-neutral-700`}
         >
+          {/* ---- leave button ---- */}
           <Button
             onClick={() => {
               setWarningModalState(true);
@@ -144,16 +175,18 @@ export function GCCard({
         </Modal>
       )}
 
+      {/* ========== warning modal (confirmation check) ========== */}
       {warningModalState && (
         <Modal
           onClose={() => {
             handleClose();
           }}
         >
-          {chatInfo.chatInfo.owner == userId ? (
+          {/* ---- owner or member confirmation ---- */}
+          {chatInfo.chatInfo!.owner.toString() == userId! ? (
             <DBLeaveChatOwner
               chatId={chatInfo.id}
-              handleLeave={(forceDelete = false, newOwner: any = null) => {
+              handleLeave={(forceDelete = false, newOwner = null) => {
                 handleLeave(forceDelete, newOwner, true);
               }}
             />
@@ -172,29 +205,6 @@ export function GCCard({
           )}
         </Modal>
       )}
-    </>
-  );
-}
-
-export function DBTitle() {
-  const [modalState, setModalState] = useState(false);
-  return (
-    <>
-      {modalState && <GCModal onClose={() => setModalState(false)} />}
-      <div className="flex justify-between items-center h-10 w-auto ">
-        <p className="text-xl text-white">Dashboard</p>
-        <div>
-          <Button
-            onClick={() => setModalState(true)}
-            className="bg-neutral-950 p-2 rounded"
-          >
-            <div className="flex justify-center items-center gap-2 text-sm">
-              <p>Add Chat</p>
-              {/* <p className="text-yellow-400">+</p> */}
-            </div>
-          </Button>
-        </div>
-      </div>
     </>
   );
 }
@@ -296,7 +306,23 @@ export function DBLeaveChatOwner({
               <div className="bg-[#383838] w-[12rem] rounded p-1 flex flex-col gap-1">
                 {memberList.map((member) => {
                   if (member.role === "owner") {
-                    return <Fragment key={member.id}></Fragment>;
+                    return (
+                      <div
+                        key={member.id}
+                        onClick={() => {
+                          setSelectedOwner(null);
+                          setShowMenu(false);
+                        }}
+                        className={cn(
+                          "flex items-center gap-3 bg-neutral-600 p-2 rounded  cursor-pointer text-neutral-400",
+                          {
+                            "bg-neutral-800": member.id == selectedOwner?.id,
+                          }
+                        )}
+                      >
+                        select new owner
+                      </div>
+                    );
                   }
                   return (
                     <div
