@@ -88,3 +88,23 @@ export const userActionValidator = z.object({
   userId: z.number(),
   chatId: z.number(),
 });
+
+// delete chat
+export const memberSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  image: z.string(),
+  isBan: z.boolean(),
+  isMute: z.boolean(),
+  role: z.enum(["owner", "admin", "member"]),
+  joined: z.number(),
+});
+
+export const deleteChatValidator = z.object({
+  chatId: z.number(),
+  chatCode: z.string(),
+  forceDelete: z.boolean(),
+  newOwner: memberSchema.nullable(),
+});
+
+export type deleteChat = z.infer<typeof deleteChatValidator>;

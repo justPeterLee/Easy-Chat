@@ -1,6 +1,5 @@
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { fetchRedis } from "./redis";
 const bcrypt = require("bcryptjs");
 
 export function cn(...inputs: ClassValue[]) {
@@ -26,6 +25,7 @@ export function chatArrayToObj(arr: string[]): chatInfo {
     privacy: false,
     memberId: 0,
     messageId: 0,
+    owner: 0,
   } as const;
   for (let i = 0; i < arr.length; i += 2) {
     const key = arr[i];
@@ -41,7 +41,7 @@ export function chatArrayToObj(arr: string[]): chatInfo {
     } else if (
       !isNaN(Number(value)) &&
       value != "" &&
-      (key === "memberId" || key === "messageId")
+      (key === "memberId" || key === "messageId" || key === "owner")
     ) {
       formatValue = Number(value);
       chatInfo[key] = formatValue;
@@ -69,16 +69,4 @@ export function memberArraytoObj(arr: string[]): { [key: string]: chatMember } {
     memberObj[key] = formatValue;
   }
   return memberObj;
-}
-
-export async function autoJoin(userId: string, chatId: string) {
-  try {
-    // already member of chat
-    // check if in chat list
-    // join if not in chat list
-    // const chatList = await fetchRedis("zrange", `chatlist:${userId}`, 0, -1);
-    // console.log(chatList);
-  } catch (err) {
-    console.log(err);
-  }
 }

@@ -37,7 +37,7 @@ export const POST = async (req: NextRequest) => {
     const memberId = await db.incr("member_id");
     // await db.sadd(`mem_list:${memberId}`, id);
 
-    const newMember: chatMember = {
+    const newMember: ChatMember = {
       id: session.user.id,
       username: session.user.name,
       image: session.user.image,
@@ -61,6 +61,7 @@ export const POST = async (req: NextRequest) => {
       image: genData.image,
       memberId,
       messageId,
+      owner: session.user.id,
     });
 
     // add to chat list

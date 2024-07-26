@@ -19,7 +19,7 @@ export const POST = async (req: NextRequest) => {
     const isMember = (await db.hmget(
       `chat:members:${chatId}`,
       session.user.id
-    )) as unknown as { [key: string]: chatMember };
+    )) as unknown as { [key: string]: ChatMember };
     if (!isMember) {
       return new Response("unauthorized", { status: 401 });
     }

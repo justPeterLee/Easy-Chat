@@ -17,7 +17,7 @@ export const POST = async (req: NextRequest) => {
     const isOwner = (await db.hmget(
       `chat:members:${validUserData.chatId}`,
       session.user.id
-    )) as unknown as { [key: string]: chatMember };
+    )) as unknown as { [key: string]: ChatMember };
 
     if (isOwner[session.user.id].role !== "owner")
       return new Response("unauthorize", { status: 401 });

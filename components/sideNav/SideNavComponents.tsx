@@ -4,8 +4,12 @@ import Link from "next/link";
 import { Button } from "../ui/Button";
 import Image from "next/image";
 import { GCModal } from "../modal/GCModal";
-import { useState } from "react";
-export function PubChatList({ chatList }: { chatList: PublicChatList }) {
+import { Fragment, useState } from "react";
+export function PubChatList({
+  chatList,
+}: {
+  chatList: PublicChatList | null[];
+}) {
   const [modalState, setModalState] = useState(false);
 
   return (
@@ -33,6 +37,7 @@ export function PubChatList({ chatList }: { chatList: PublicChatList }) {
         </span>
         <div className="flex-col gap-1">
           {chatList.map((chat) => {
+            if (chat === null) return <Fragment key={Math.random()}></Fragment>;
             return (
               <Link
                 key={chat.chatId}

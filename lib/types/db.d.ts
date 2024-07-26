@@ -9,7 +9,7 @@ interface PublicChat {
 type PublicChatList = PublicChat[];
 
 // chat info
-interface chatInfo {
+interface ChatInfo {
   title: string;
   code: string;
   image: string;
@@ -18,23 +18,25 @@ interface chatInfo {
   privacy: boolean;
   memberId: number;
   messageId: number;
+  owner: number;
 }
-interface generalChatInfo {
+interface GeneralChatInfo {
   title: string;
   privacy: boolean;
   code: string;
   image: string;
+  owner: string;
 }
 
-interface allChatInfo {
+interface AllChatInfo {
   id: number;
-  chatInfo: generalChatInfo;
+  chatInfo: GeneralChatInfo;
   members: number;
   messages: chatMessages[];
 }
 
 // chat messages
-interface chatMessages {
+interface ChatMessages {
   id: string;
   senderId: string;
   chatId: string;
@@ -43,7 +45,7 @@ interface chatMessages {
 }
 
 // chat members
-interface chatMember {
+interface ChatMember {
   id: string;
   username: string;
   image: string;

@@ -49,7 +49,7 @@ export const POST = async (req: NextRequest) => {
     // add to memeber list
     // await db.sadd(`mem_list:${chatId}`, session.user.id);
 
-    const newMember: chatMember = {
+    const newMember: ChatMember = {
       id: session.user.id,
       username: session.user.name,
       image: session.user.image,

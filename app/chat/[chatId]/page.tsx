@@ -27,7 +27,7 @@ async function validateUser(chatId: string, userId: string) {
 
     if (!fetchIsMember[0]) return null;
 
-    const isMember: chatMember = JSON.parse(fetchIsMember[0]);
+    const isMember: ChatMember = JSON.parse(fetchIsMember[0]);
 
     if (isMember.isBan) return "BANNED";
 

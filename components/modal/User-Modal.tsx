@@ -77,6 +77,7 @@ export const UserModal = () => {
   if (showModal) {
     return (
       <Modal
+        onClose={() => {}}
         modalClassName=""
         error={{ error: error, errorLable: "could not make user" }}
       >

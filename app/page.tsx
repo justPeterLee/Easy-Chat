@@ -8,7 +8,7 @@ import { getServerSession } from "next-auth";
 
 async function getPublicChatList(
   userId: string | undefined
-): Promise<allChatInfo[]> {
+): Promise<AllChatInfo[]> {
   try {
     if (!userId) {
       return [];
@@ -20,7 +20,7 @@ async function getPublicChatList(
     }[];
 
     if (userChatsList.length) {
-      const chatInfoList: allChatInfo[] = await Promise.all(
+      const chatInfoList: AllChatInfo[] = await Promise.all(
         userChatsList.map(async (chatCodes) => {
           const allChatInfo = await Promise.all([
             (await db.hmget(
@@ -28,14 +28,15 @@ async function getPublicChatList(
               "title",
               "privacy",
               "code",
-              "image"
-            )) as unknown as generalChatInfo,
+              "image",
+              "owner"
+            )) as unknown as GeneralChatInfo,
             (await db.hlen(`chat:members:${chatCodes.id}`)) as number,
             (await db.zrange(
               `chat:messages:${chatCodes.id}`,
               0,
               2
-            )) as unknown as chatMessages[],
+            )) as unknown as ChatMessages[],
           ]);
 
           const allChatInfoObj = {
@@ -58,14 +59,13 @@ async function getPublicChatList(
 export default async function Dashboard() {
   const session = await getServerSession(authOption);
   const publicChatList = await getPublicChatList(session?.user.id);
-  console.log(publicChatList);
   return (
     <>
       <main className="w-screen h-screen bg-neutral-800 p-4 px-10 flex flex-col gap-4">
         <DBTitle />
         <div className="w-full h-auto">
           <section className=" grid grid-cols-[repeat(auto-fill,_minmax(24rem,1fr))] gap-[1.5rem]  w-full h-full">
-            <DBChatlist chatlist={publicChatList} />
+            <DBChatlist chatlist={publicChatList} userId={session?.user.id} />
           </section>
         </div>
       </main>

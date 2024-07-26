@@ -17,7 +17,7 @@ export const POST = async (req: NextRequest) => {
     const isOwner = (await db.hmget(
       `chat:members:${validUserData.chatId}`,
       session.user.id
-    )) as unknown as { [key: string]: chatMember };
+    )) as unknown as { [key: string]: ChatMember };
     console.log(isOwner[session.user.id].role);
     if (isOwner[session.user.id].role !== "owner")
       return new Response("unauthorize", { status: 401 });
@@ -31,11 +31,11 @@ export const POST = async (req: NextRequest) => {
     const userData = (await db.hmget(
       `chat:members:${validUserData.chatId}`,
       `${validUserData.userId}`
-    )) as unknown as { [key: string]: chatMember };
+    )) as unknown as { [key: string]: ChatMember };
 
     // create new attacked user info
     const newMuteState = !userData[validUserData.userId].isMute;
-    const newUserData: chatMember = {
+    const newUserData: ChatMember = {
       ...userData[validUserData.userId],
       isMute: newMuteState,
     };
