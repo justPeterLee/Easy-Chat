@@ -16,7 +16,6 @@ interface StandardInputProps {
   innerClassName?: string;
   labelClassName?: string;
   inputClassName?: string;
-
   isTextArea?: boolean;
   disable?: boolean;
   type?: "password" | "number";

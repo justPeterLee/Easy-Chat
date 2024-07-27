@@ -2,11 +2,21 @@
 
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { deleteChatValidator } from "@/lib/validator";
-import axios from "axios";
+import {
+  UpdateChat,
+  deleteChatValidator,
+  updateChatValidator,
+} from "@/lib/validator";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { Modal } from "../Backdrop";
+import { VscLoading } from "react-icons/vsc";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { StandardInput } from "@/components/ui/Input";
+import { CRMemberList } from "@/components/pageComponents/CRComponents";
 
 export function LeaveChat({
   onClose,
@@ -251,5 +261,419 @@ export function OwnerLC({
         Leave Chat
       </Button>
     </div>
+  );
+}
+
+export function EditChat({
+  onClose,
+  chatId,
+}: {
+  onClose: () => void;
+  chatId: number;
+}) {
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  return (
+    <>
+      <Button
+        onClick={() => {
+          setShowWarningModal(true);
+        }}
+      >
+        edit
+      </Button>
+
+      {showWarningModal && (
+        <EditChatModal
+          onClose={() => {
+            onClose();
+            setShowWarningModal(false);
+          }}
+          chatId={chatId}
+        />
+      )}
+    </>
+  );
+}
+
+function EditChatModal({
+  onClose,
+  chatId,
+}: {
+  onClose: () => void;
+  chatId: number;
+}) {
+  const [chatInfo, setChatInfo] = useState<{
+    chatInfo: ChatInfo;
+    members: {
+      [key: string]: ChatMember;
+    };
+  } | null>(null);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get(`/api/chat/get/${chatId}`)
+      .then(
+        (
+          response: AxiosResponse<{
+            chatInfo: ChatInfo;
+            members: {
+              [key: string]: ChatMember;
+            };
+          }>
+        ) => {
+          //   const chatInfoData = response.data;
+          setChatInfo(response.data);
+          setError(false);
+          setLoading(false);
+        }
+      )
+      .catch((err) => {
+        setLoading(false);
+        setError(true);
+        console.log("could not fetch chat info: ", err);
+      });
+  }, []);
+
+  return (
+    <Modal
+      onClose={() => {
+        onClose();
+      }}
+      modalClassName="p-7 h-[30rem] w-[35rem] overflow-auto  scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-500 px-10 "
+    >
+      {loading ? (
+        <div className="w-full h-full flex justify-center items-center">
+          <VscLoading className="animate-spin" size={100} />
+        </div>
+      ) : error || chatInfo === null ? (
+        <div className="flex flex-col justify-center items-center gap-2">
+          <p className="text-[1.75rem] text-neutral-600 font-semibold">
+            (ERROR)
+          </p>
+          <img src={"/svg/robotError.svg"} className="w-[18rem]" />
+          <div className="flex flex-col justify-center items-center gap-2">
+            <p className=" text-neutral-600 font-semibold">
+              Cannot edit chat right now, try again later.
+            </p>
+
+            <Button
+              onClick={() => {
+                onClose();
+              }}
+            >
+              close
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <EditChatForm
+          onClose={onClose}
+          chatInfo={chatInfo.chatInfo}
+          chatId={chatId}
+          memberList={chatInfo.members}
+        />
+      )}
+    </Modal>
+  );
+}
+
+function EditChatForm({
+  onClose,
+  chatInfo,
+  chatId,
+  memberList,
+}: {
+  onClose: () => void;
+  chatInfo: ChatInfo;
+  chatId: number;
+  memberList: {
+    [key: string]: ChatMember;
+  };
+}) {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<UpdateChat>({
+    defaultValues: {
+      ...chatInfo,
+      password: chatInfo.privacy,
+      newpassword: "",
+      oldpassword: "",
+    },
+    resolver: zodResolver(updateChatValidator),
+  });
+
+  const formData = watch();
+
+  const [error, setError] = useState(false);
+  const [hasChanged, setHasChanged] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
+
+  const updateChat = async (data: UpdateChat) => {
+    const validatedData = updateChatValidator.parse(data);
+    console.log(validatedData);
+
+    await axios.post("/api/chat/update", { data: validatedData, id: chatId });
+    onClose();
+    try {
+    } catch (err) {
+      setError(true);
+      if (err instanceof z.ZodError) {
+        console.log("failed to update chat", { message: err.message });
+      }
+
+      if (err instanceof AxiosError) {
+        console.log("failed to update chat", { message: err.response?.data });
+      }
+    }
+  };
+
+  const deleteChat = async () => {
+    try {
+      await axios.post("/api/chat/delete", { chatId: chatId });
+      onClose();
+    } catch (err) {
+      setError(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!hasChanged) {
+      if (
+        formData.title !== chatInfo.title ||
+        formData.privacy !== chatInfo.privacy ||
+        formData.description !== chatInfo.description ||
+        formData.oldpassword ||
+        formData.newpassword
+      )
+        setHasChanged(true);
+    }
+  }, [formData]);
+  return (
+    <>
+      <form
+        className="flex flex-col gap-4 justify-center items-center"
+        onSubmit={handleSubmit(updateChat)}
+      >
+        <div className="flex items-center justify-between w-full mb-2">
+          <p className="text-xl">Edit Chat</p>
+          <div className="relative">
+            <Button
+              disabled={!hasChanged}
+              type="submit"
+              className={cn({ "hover:bg-neutral-600 opacity-30": !hasChanged })}
+            >
+              Save Changes
+            </Button>
+            {error && (
+              <p className="absolute text-xs text-red-600 whitespace-nowrap">
+                *could not update chat
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="bg-[#303030] p-3 rounded-lg w-full">
+          <div>
+            <p>Title and Description</p>
+            <p className="text-sm text-neutral-500">
+              Write a fitting title and expressive description to describe your
+              chat.
+            </p>
+          </div>
+
+          <div className="w-full p-2">
+            <StandardInput
+              register={register}
+              id="title"
+              inputClassName="w-full text-sm"
+              labelClassName="bg-[#303030]"
+              value={formData.title}
+              label="title"
+              error={errors.title?.message}
+
+              // disable={true}
+            />
+
+            <StandardInput
+              register={register}
+              id={"description"}
+              inputClassName="w-full text-sm"
+              labelClassName="bg-[#303030]"
+              value={formData.description}
+              label="description"
+              isTextArea={true}
+            />
+          </div>
+        </div>
+
+        <div className="w-full bg-[#303030] p-3 rounded-lg">
+          <div className="mb-2">
+            <p>Privacy</p>
+            <p className="text-sm text-neutral-500">
+              Depending on you privacy setting, your chat will be open to any
+              one (public) or only those with the password (private).
+            </p>
+          </div>
+
+          <div>
+            <div className="flex justify-start items-center p-2">
+              <label className="inline-flex items-center me-5 cursor-pointer flex-col justify-center gap-1">
+                <span className=" text-sm font-medium text-neutral-400 select-none pointer-events-none">
+                  Private
+                </span>
+                <input
+                  {...register("privacy")}
+                  type="checkbox"
+                  className="sr-only peer"
+                />
+                <div className="relative w-11 h-6 bg-neutral-600 rounded-full peer dark:bg-gray-700  peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all  peer-checked:bg-yellow-500"></div>
+              </label>
+
+              <div className="w-full">
+                {chatInfo.privacy && (
+                  <StandardInput
+                    register={register}
+                    id={"oldpassword"}
+                    outClassName="flex-grow"
+                    inputClassName="w-full text-sm"
+                    labelClassName="bg-[#303030]"
+                    value={formData.oldpassword || ""}
+                    label="old password"
+                    error={errors.oldpassword?.message}
+                    disable={!formData.privacy}
+                    type="password"
+                  />
+                )}
+                <StandardInput
+                  register={register}
+                  id={"newpassword"}
+                  outClassName="flex-grow"
+                  inputClassName="w-full text-sm"
+                  labelClassName="bg-[#303030]"
+                  value={formData.newpassword || ""}
+                  label="new password"
+                  error={errors.newpassword?.message}
+                  disable={!formData.privacy}
+                  type="password"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full bg-[#303030] p-3 rounded-lg">
+          <p>Members</p>
+          <p className="text-sm text-neutral-500">
+            See all the members of your chat.
+          </p>
+
+          <div>
+            <CRMemberList memberList={memberList} chatId={chatId.toString()} />
+            {/* {JSON.stringify(memberList)} */}
+          </div>
+        </div>
+
+        <div className="w-full bg-[#303030] p-3 rounded-lg">
+          <div>
+            <p>Delete Group Chat</p>
+            <p className="text-sm text-neutral-500">
+              Your group chat will be permanently deleted and all group members
+              will be automatically kicked from the chat.
+            </p>
+          </div>
+
+          <div className="flex justify-end p-2">
+            <Button
+              type="button"
+              className="px-10 bg-red-800 hover:bg-red-800"
+              onClick={() => {
+                setShowDeleteWarning(true);
+              }}
+            >
+              delete
+            </Button>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          onClick={() => {
+            if (hasChanged) {
+              setShowWarningModal(true);
+            } else {
+              onClose();
+            }
+          }}
+        >
+          close
+        </Button>
+      </form>
+
+      {showWarningModal && (
+        <Modal
+          onClose={() => {
+            setShowWarningModal(false);
+          }}
+        >
+          <div className="flex flex-col gap-2">
+            <p>Are you sure you want to discard changes?</p>
+            <div className="flex justify-end gap-1">
+              <Button
+                variant={"ghost"}
+                onClick={() => {
+                  setShowWarningModal(false);
+                }}
+              >
+                cancel
+              </Button>
+              <Button
+                className="bg-red-800 hover:bg-red-700"
+                onClick={() => {
+                  onClose();
+                }}
+              >
+                discard
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {showDeleteWarning && (
+        <Modal
+          onClose={() => {
+            setShowDeleteWarning(false);
+          }}
+        >
+          <div className="flex flex-col gap-2">
+            <p>Are you sure you want to delete chat?</p>
+            <div className="flex justify-end gap-1">
+              <Button
+                variant={"ghost"}
+                onClick={() => {
+                  setShowDeleteWarning(false);
+                }}
+              >
+                cancel
+              </Button>
+              <Button
+                className="bg-red-800 hover:bg-red-700"
+                onClick={() => {
+                  deleteChat();
+                }}
+              >
+                delete
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </>
   );
 }

@@ -21,7 +21,7 @@ export function MenuModal({
           right: `${innerWidth - parentRef.getBoundingClientRect().right}px`,
         },
       }}
-      modalClassName={` p-0 bg-neutral-700`}
+      modalClassName={` p-0 bg-neutral-700 flex flex-col`}
     >
       {children}
     </Modal>

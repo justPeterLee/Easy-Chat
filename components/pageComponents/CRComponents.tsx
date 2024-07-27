@@ -13,7 +13,7 @@ import { VscLoading } from "react-icons/vsc";
 import Link from "next/link";
 import { FaGear } from "react-icons/fa6";
 import { MenuModal } from "../modal/MenuModal";
-import { LeaveChat } from "../modal/chatAction/ChatAction";
+import { EditChat, LeaveChat } from "../modal/chatAction/ChatAction";
 
 export function CRTitle({
   title,
@@ -506,6 +506,14 @@ export function CREdit({
           }}
           parentRef={editRef.current}
         >
+          {chatInfo.chat.owner === parseInt(userId) && (
+            <EditChat
+              onClose={() => {
+                setShowEditModal(false);
+              }}
+              chatId={chatId}
+            />
+          )}
           <LeaveChat
             onClose={() => {
               setShowEditModal(false);

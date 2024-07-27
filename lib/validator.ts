@@ -1,3 +1,4 @@
+import { title } from "process";
 import { z } from "zod";
 
 // Chatroom
@@ -28,6 +29,61 @@ export const createChatValidator = z
   });
 
 export type CreateChat = z.infer<typeof createChatValidator>;
+
+export const updateChatValidator = z
+  .object({
+    title: z.string(),
+    description: z.string(),
+    privacy: z.boolean(),
+    password: z.boolean(),
+    oldpassword: z.string().optional(),
+    newpassword: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.title.replace(/\s/g, "")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["title"],
+        message: "invalid title",
+      });
+    }
+
+    if (
+      data.privacy &&
+      data.password &&
+      data.newpassword &&
+      (!data.oldpassword || !data.oldpassword.replace(/\s/g, ""))
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "invalid password",
+        path: ["oldpassword"],
+      });
+    }
+
+    if (!data.newpassword?.replace(/\s/g, "") && data.oldpassword) {
+      ctx.addIssue({
+        code: "custom",
+        message: "invalid password",
+        path: ["newpassword"],
+      });
+    }
+
+    if (
+      data.privacy &&
+      !data.password &&
+      (!data.newpassword || !data.newpassword.replace(/\s/g, ""))
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "invalid password",
+        path: ["newpassword"],
+      });
+    }
+    return z.NEVER;
+  });
+
+export type UpdateChat = z.infer<typeof updateChatValidator>;
 
 export const generatedChatDataValidator = z.object({
   code: z.string(),
