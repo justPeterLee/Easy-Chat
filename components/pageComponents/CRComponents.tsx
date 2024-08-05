@@ -14,6 +14,7 @@ import Link from "next/link";
 import { FaGear } from "react-icons/fa6";
 import { MenuModal } from "../modal/MenuModal";
 import { EditChat, LeaveChat } from "../modal/chatAction/ChatAction";
+import { TbTrashOff } from "react-icons/tb";
 
 export function CRTitle({
   title,
@@ -102,15 +103,17 @@ export function CRShowMessage({ messages }: { messages: ChatMessages[] }) {
 }
 
 function CRShowMessageUser({ message }: { message: ChatMessages }) {
+  type User = { image: string | null; username: string | null };
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState({ image: "", username: "" });
+  const [user, setUser] = useState<User>({ image: "", username: "" });
   const [error, setError] = useState(false);
   useEffect(() => {
     axios
       .get(`/api/chat/users/${message.senderId}`)
-      .then(async (response) => {
-        const user = await response;
-        setUser({ ...user.data });
+      .then((response) => {
+        const user: User = response.data;
+        // console.log(user);
+        setUser({ ...user });
         setError(false);
         setLoading(false);
       })
@@ -126,21 +129,25 @@ function CRShowMessageUser({ message }: { message: ChatMessages }) {
       ) : (
         <>
           {loading ? (
-            <div className="bg-neutral-400 w-12 h-12 rounded-full absolute animate-pulse" />
-          ) : (
+            <div className="bg-neutral-600 w-12 h-12 rounded-full absolute animate-pulse" />
+          ) : user.image ? (
             <img
               className="bg-neutral-600 w-12 h-12 rounded-full absolute"
               src={user.image}
               alt="pfp"
             ></img>
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-neutral-700 absolute flex justify-center items-center">
+              <TbTrashOff color="#909090" size={20} />
+            </div>
           )}
           <div className="pl-16">
             {loading ? (
-              <div className="bg-neutral-400 w-[10rem] h-[.75rem] rounded-lg animate-pulse"></div>
+              <div className="bg-neutral-600 w-[10rem] h-[.75rem] rounded-lg animate-pulse"></div>
             ) : (
               <div className="flex justify-center items-center gap-4">
-                <p className="text-yellow-400 text-lg hover:underline hover:cursor-pointer">
-                  {user.username}{" "}
+                <p className="text-yellow-400 text-lg hover:underline hover:cursor-pointer ">
+                  {user.username !== null ? user.username : "<deleted account>"}
                 </p>
                 <p className="text-neutral-500 text-xs">
                   {format(

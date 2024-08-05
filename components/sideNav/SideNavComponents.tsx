@@ -4,7 +4,11 @@ import Link from "next/link";
 import { Button } from "../ui/Button";
 import Image from "next/image";
 import { GCModal } from "../modal/chatModal/GCModal";
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
+import { DeleteUserModal, ViewUserModal } from "../modal/userModal/UserModal";
+import { cn } from "@/lib/utils";
+import { Modal } from "../modal/Backdrop";
+import { useSession } from "next-auth/react";
 export function PubChatList({
   chatList,
 }: {
@@ -54,25 +58,59 @@ export function PubChatList({
   );
 }
 
-export function UserTab({
-  session,
-}: {
-  session: { user: { name: string; image: string } };
-}) {
+export function UserTab() {
+  const { data } = useSession();
+  const parentRef = useRef<HTMLDivElement | null>(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  if (!data) return <p className="text-white">loading</p>;
+
   return (
-    <Link href={"/"} className="flex justify-center  w-full">
-      <div className=" flex-1  flex justify-center items-center">
-        <Image
-          src={session.user.image}
-          alt={"pfp"}
-          width={60}
-          height={60}
-          className="rounded-full"
+    <>
+      <div
+        ref={parentRef}
+        className={cn(
+          "w-[16rem] flex gap-3 text-neutral-300 hover:bg-neutral-700 duration-100 cursor-pointer px-3 py-2 my-1 fixed bottom-0 bg-[#191919]",
+          { "bg-neutral-700": showUserModal }
+        )}
+        onClick={() => {
+          setShowUserModal(true);
+        }}
+      >
+        <div className="flex justify-center items-center">
+          <Image
+            src={data.user.image}
+            alt={"pfp"}
+            width={40}
+            height={40}
+            className="rounded-full"
+          />
+        </div>
+        <div className="flex flex-col justify-center text-sm">
+          <p>{data.user.name}</p>
+          <p className="text-xs">status</p>
+        </div>
+      </div>
+
+      {showUserModal && parentRef.current && (
+        <ViewUserModal
+          onClose={() => {
+            setShowUserModal(false);
+          }}
+          showWarningModal={() => {
+            setShowWarningModal(true);
+          }}
+          parentRef={parentRef.current}
         />
-      </div>
-      <div className=" w-[60%]  flex  items-center">
-        <p>{session.user.name}</p>
-      </div>
-    </Link>
+      )}
+
+      {showWarningModal && (
+        <DeleteUserModal
+          onClose={() => {
+            setShowWarningModal(false);
+          }}
+        />
+      )}
+    </>
   );
 }

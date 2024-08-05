@@ -9,8 +9,8 @@ export default async function GET(req: NextApiRequest, res: NextApiResponse) {
     if (isNaN(Number(chatId))) throw new Error("invalid request");
 
     const chatInfoAll = await Promise.all([
-      (await fetchRedis("hgetall", `chat:${chatId}`)) as string[],
-      (await fetchRedis("hgetall", `chat:members:${chatId}`)) as string[],
+      fetchRedis("hgetall", `chat:${chatId}`) as unknown as string[],
+      fetchRedis("hgetall", `chat:members:${chatId}`) as unknown as string[],
     ]).catch(() => {
       throw new Error("failed to retieve chat");
     });

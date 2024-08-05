@@ -31,7 +31,7 @@ async function getPublicChatList(
       const chatInfoList: AllChatInfo[] = await Promise.all(
         chatList.map(async (chatCodes) => {
           const fetchAllChatInfo = await Promise.all([
-            (await fetchRedis(
+            fetchRedis(
               "hmget",
               `chat:${chatCodes.id}`,
               "title",
@@ -39,14 +39,14 @@ async function getPublicChatList(
               "code",
               "image",
               "owner"
-            )) as string[] | null[],
-            (await db.hlen(`chat:members:${chatCodes.id}`)) as number,
-            (await fetchRedis(
+            ) as unknown as string[] | null[],
+            db.hlen(`chat:members:${chatCodes.id}`) as unknown as number,
+            fetchRedis(
               "zrange",
               `chat:messages:${chatCodes.id}`,
               0,
               2
-            )) as string[],
+            ) as unknown as string[],
           ]);
 
           const key: ["title", "privacy", "code", "image", "owner"] = [

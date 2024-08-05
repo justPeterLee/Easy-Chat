@@ -20,7 +20,13 @@ export function Modal({
   modalClassName?: string;
   modalCustomCords?: {
     state: boolean;
-    style: { top?: string; bottom?: string; left?: string; right?: string };
+    style: {
+      top?: string;
+      bottom?: string;
+      left?: string;
+      right?: string;
+      transform?: string;
+    };
   };
 
   error?: { error: boolean; errorLable: string };

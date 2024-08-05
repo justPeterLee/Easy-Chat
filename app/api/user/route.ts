@@ -8,7 +8,6 @@ export const POST = async (req: NextRequest) => {
 
     // create unique id
     const id = await db.incr("user_id");
-    console.log(id);
     const user_key = `user:${id}`;
 
     await db.hmset(user_key, {
