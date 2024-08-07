@@ -6,7 +6,7 @@ import {
   CRTitle,
 } from "@/components/pageComponents/CRComponents";
 import { db, fetchRedis } from "@/lib/redis";
-import { chatArrayToObj, memberArraytoObj } from "@/lib/utils";
+import { chatArrayToObj, chatlistArray, memberArraytoObj } from "@/lib/utils";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
@@ -32,28 +32,26 @@ async function validateUser(chatId: string, userId: string) {
     if (isMember.isBan) return "BANNED";
 
     // auto join
-    const fetchChatList = (await fetchRedis(
-      "zrange",
+    const chatListHash = (await fetchRedis(
+      "hmget",
       `chatlist:${userId}`,
-      0,
-      -1
+      chatId
     )) as string[];
 
-    const chatList = fetchChatList.filter((chat: string) => {
-      const chatCodes: { code: string; id: number } = JSON.parse(chat);
-      return chatCodes.id.toString() === chatId;
-    });
-
-    if (!chatList.length) {
+    // if not in chat list
+    if (!chatListHash.length) {
       const fetchPubCode = (await fetchRedis(
         "hmget",
         `chat:${chatId}`,
         "code"
       )) as string[];
+
       const chatlistInput = { code: fetchPubCode[0], id: chatId };
-      await db.zadd(`chatlist:${userId}`, {
-        score: Date.now(),
-        member: JSON.stringify(chatlistInput),
+
+      await db.hset(`chatlist:${userId}`, {
+        code: chatlistInput.code,
+        id: chatlistInput.id,
+        joined: Date.now(),
       });
     }
 
@@ -124,9 +122,9 @@ export default async function ChatRoom({ params }: PageProps) {
       />
 
       {/* {JSON.stringify(chatData)} */}
-      <div className="flex flex-grow w-full">
+      <div className="flex flex-grow w-full overflow-auto">
         <div className="flex flex-col flex-grow">
-          <CRShowMessage messages={chatData.messages} />
+          <CRShowMessage messages={chatData.messages} chatId={params.chatId} />
           <CRSendMessage chatId={params.chatId} />
         </div>
         <div className="w-[15rem] bg-[#1f1f1f]">

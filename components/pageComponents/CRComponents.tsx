@@ -6,7 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import axios, { AxiosError } from "axios";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { cn, toPusherKey } from "@/lib/utils";
 import { Modal } from "../modal/Backdrop";
 import { userActionValidator } from "@/lib/validator";
 import { VscLoading } from "react-icons/vsc";
@@ -15,6 +15,7 @@ import { FaGear } from "react-icons/fa6";
 import { MenuModal } from "../modal/MenuModal";
 import { EditChat, LeaveChat } from "../modal/chatAction/ChatAction";
 import { TbTrashOff } from "react-icons/tb";
+import { pusherClient } from "@/lib/pusher";
 
 export function CRTitle({
   title,
@@ -47,7 +48,15 @@ export function CRTitle({
   );
 }
 
-export function CRShowMessage({ messages }: { messages: ChatMessages[] }) {
+export function CRShowMessage({
+  messages,
+  chatId,
+}: {
+  messages: ChatMessages[];
+  chatId: string;
+}) {
+  const [messagesState, setMessagesState] = useState(messages);
+
   const scrollContainer = useRef<HTMLDivElement | null>(null);
   const scollToBottom = () => {
     scrollContainer.current!.scrollTop = scrollContainer.current!.scrollHeight;
@@ -57,15 +66,29 @@ export function CRShowMessage({ messages }: { messages: ChatMessages[] }) {
     scollToBottom();
   }, []);
 
+  useEffect(() => {
+    pusherClient.subscribe(toPusherKey(`chat:${chatId}`));
+
+    const messageHandler = (message: ChatMessages) => {
+      console.log(messagesState, message);
+      setMessagesState((prev) => [message, ...prev]);
+    };
+    pusherClient.bind("incoming-message", messageHandler);
+
+    return () => {
+      pusherClient.unsubscribe(toPusherKey(`chat:${chatId}`));
+      pusherClient.unbind("incoming-message", messageHandler);
+    };
+  }, []);
   return (
     <div className="overflow-hidden flex-grow min-h-20 mb-3">
       <div
         ref={scrollContainer}
-        className="flex-col-reverse flex gap-2 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-500 px-10"
+        className="flex-col-reverse flex gap-1 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-500 px-10"
       >
-        {messages.map((message, index) => {
+        {messagesState.map((message, index) => {
           // user w/ date bar
-          if (messages.length - 1 === index) {
+          if (messagesState.length - 1 === index) {
             return (
               <Fragment key={message.id}>
                 <CRShowMessageUser key={message.id} message={message} />
@@ -75,7 +98,7 @@ export function CRShowMessage({ messages }: { messages: ChatMessages[] }) {
           }
           const curDay = format(new Date(message.timestamp), "yyyy MM dd");
           const nextDay = format(
-            new Date(messages[index + 1].timestamp),
+            new Date(messagesState[index + 1].timestamp),
             "yyyy MM dd"
           );
 
@@ -90,7 +113,9 @@ export function CRShowMessage({ messages }: { messages: ChatMessages[] }) {
           }
 
           // message only
-          if (messages[index].senderId === messages[index + 1].senderId) {
+          if (
+            messagesState[index].senderId === messagesState[index + 1].senderId
+          ) {
             return <CRShowMessageOnly key={message.id} message={message} />;
           }
 
@@ -123,7 +148,7 @@ function CRShowMessageUser({ message }: { message: ChatMessages }) {
       });
   }, []);
   return (
-    <div className={`flex relative min-h-12 `}>
+    <div className={`flex relative min-h-12 mt-3 `}>
       {error ? (
         <>message not found</>
       ) : (
@@ -302,21 +327,56 @@ export function CRSendMessage({ chatId }: { chatId: string }) {
   );
 }
 
+type MemberList = { [key: string]: ChatMember };
 export function CRMemberList({
   memberList,
   chatId,
 }: {
-  memberList: { [key: string]: ChatMember };
+  memberList: MemberList;
   chatId: string;
 }) {
+  const [loading, setLoading] = useState(false);
+  const [memListArr, setMemListArr] = useState<MemberList>({});
+
   const memberListArray = useMemo(() => {
-    const memberKeyArray = Object.keys(memberList);
+    const memberKeyArray = Object.keys(memListArr);
     const memberArray = memberKeyArray.map((memberKey: string) => {
-      return memberList[memberKey];
+      return memListArr[memberKey];
     });
     return memberArray;
-  }, [memberList]);
+  }, [memListArr]);
 
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get(`/api/chat/members/${chatId}`)
+      .then((response) => {
+        console.log(response.data);
+        setLoading(false);
+        const data: MemberList = response.data;
+        setMemListArr({ ...data });
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    pusherClient.subscribe(toPusherKey(`member:list:${chatId}`));
+
+    const memberRevalidateHandler = async () => {
+      const data = await axios.get(`/api/chat/members/${chatId}`);
+      setMemListArr({ ...data.data });
+    };
+
+    pusherClient.bind("revalidate-member-list", memberRevalidateHandler);
+
+    return () => {
+      pusherClient.unsubscribe(toPusherKey(`member:list:${chatId}`));
+      pusherClient.unbind("revalidate-member-list", memberRevalidateHandler);
+    };
+  }, []);
   return (
     <div className="p-3">
       <p className="text-sm text-neutral-400">
@@ -324,7 +384,7 @@ export function CRMemberList({
       </p>
       {memberListArray.map((member) => {
         return (
-          <MemberCard memberInfo={member} key={member.id} chatId={chatId} />
+          <MemberCard memberInfo={member} key={Math.random()} chatId={chatId} />
         );
       })}
     </div>
@@ -339,16 +399,17 @@ function MemberCard({
   chatId: string;
 }) {
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const [memberInfoState, setMemberInfoState] = useState(memberInfo);
   const [isClicked, setIsClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userState, setUserState] = useState({
-    mute: memberInfo.isMute,
-    ban: memberInfo.isBan,
+    mute: memberInfoState.isMute,
+    ban: memberInfoState.isBan,
   });
   const handleUserAction = async (userAction: "mute" | "kick" | "ban") => {
     try {
       const validUserAction = userActionValidator.parse({
-        userId: parseInt(memberInfo.id),
+        userId: parseInt(memberInfoState.id),
         chatId: parseInt(chatId),
       });
       setLoading(true);
@@ -369,6 +430,20 @@ function MemberCard({
     }
   };
 
+  useEffect(() => {
+    pusherClient.subscribe(toPusherKey(`member:info:${memberInfo.id}`));
+
+    const memberHandler = (member: ChatMember) => {
+      setMemberInfoState(member);
+    };
+    pusherClient.bind(`member-action-${memberInfo.id}`, memberHandler);
+
+    return () => {
+      pusherClient.unsubscribe(toPusherKey(`member:info:${memberInfo.id}`));
+      pusherClient.unbind("member-action", memberHandler);
+    };
+  }, []);
+
   return (
     <>
       <div
@@ -383,19 +458,19 @@ function MemberCard({
       >
         <img
           className="bg-neutral-500 h-9 w-9 rounded-full"
-          src={memberInfo.image}
+          src={memberInfoState.image}
         />
         <div className="flex items-center gap-2">
-          <p>{memberInfo.username}</p>
-          {memberInfo.role === "owner" && (
+          <p>{memberInfoState.username}</p>
+          {memberInfoState.role === "owner" && (
             <p className="text-xs">{"(owner)"}</p>
           )}
 
           <div>
-            {(memberInfo.isMute || userState.mute) && (
+            {(memberInfoState.isMute || userState.mute) && (
               <p className="text-xs">{"(muted)"}</p>
             )}
-            {(memberInfo.isBan || userState.ban) && (
+            {(memberInfoState.isBan || userState.ban) && (
               <p className="text-xs">{"(banned)"}</p>
             )}
           </div>

@@ -27,8 +27,6 @@ export const POST = async (req: NextRequest) => {
 
     const genData = generatedChatDataValidator.parse({ code, image });
 
-    const { id } = session.user;
-
     // create public info
     const chatId = await db.incr("chat_id");
     await db.hset(`chat:public:${genData.code}`, { title, chatId });
@@ -65,10 +63,14 @@ export const POST = async (req: NextRequest) => {
     });
 
     // add to chat list
-    await db.zadd(`chatlist:${id}`, {
-      score: Date.now(),
-      member: JSON.stringify({ code: genData.code, id: chatId }),
-    });
+    const chatlist = {
+      [chatId]: {
+        code: genData.code,
+        id: chatId,
+        joined: Date.now(),
+      },
+    };
+    await db.hset(`chatlist:${session.user.id}`, chatlist);
 
     return new Response();
   } catch (err) {

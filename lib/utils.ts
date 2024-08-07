@@ -1,5 +1,6 @@
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+var sortBy = require("lodash.sortby");
 const bcrypt = require("bcryptjs");
 
 export function cn(...inputs: ClassValue[]) {
@@ -69,4 +70,28 @@ export function memberArraytoObj(arr: string[]): { [key: string]: ChatMember } {
     memberObj[key] = formatValue;
   }
   return memberObj;
+}
+
+export function toPusherKey(key: string) {
+  return key.replace(/:/g, "__");
+}
+
+export function chatlistArray(arr: string[]): PubChatList {
+  let pubChatList: PubChatList = [];
+
+  for (let i = 1; i < arr.length; i += 2) {
+    try {
+      const value = JSON.parse(arr[i]) as PubChat;
+      pubChatList.push(value);
+    } catch {
+      continue;
+    }
+  }
+
+  const sortedPubChatList = sortBy(
+    pubChatList,
+    (chatObj: { joined: any }) => chatObj.joined
+  );
+
+  return sortedPubChatList;
 }

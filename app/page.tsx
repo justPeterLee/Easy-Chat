@@ -3,6 +3,7 @@ import {
   DBTitle,
 } from "@/components/pageComponents/DashboardComponents";
 import { db, fetchRedis } from "@/lib/redis";
+import { chatlistArray } from "@/lib/utils";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 
@@ -14,18 +15,13 @@ async function getPublicChatList(
       return [];
     }
 
-    const fetchChatList = (await fetchRedis(
-      "zrange",
-      `chatlist:${userId}`,
-      0,
-      -1
+    const chatListHash = (await fetchRedis(
+      "hgetall",
+      `chatlist:${userId}`
     )) as string[];
+    const chatList = chatlistArray(chatListHash);
 
-    if (!fetchChatList.length) throw new Error("no chats");
-
-    const chatList: { code: string; id: number }[] = fetchChatList.map((chat) =>
-      JSON.parse(chat)
-    );
+    if (!chatList.length) throw new Error("no chats");
 
     if (chatList.length) {
       const chatInfoList: AllChatInfo[] = await Promise.all(
@@ -120,7 +116,7 @@ export default async function Dashboard() {
   const publicChatList = await getPublicChatList(session?.user.id);
   return (
     <>
-      <main className="flex-grow h-screen bg-neutral-800 p-4 px-10 flex flex-col gap-4">
+      <main className="flex-grow h-screen bg-neutral-800 p-4 px-10 flex flex-col gap-4 overflow-x-hidden">
         <DBTitle />
         <div className="w-full h-auto">
           <section className=" grid grid-cols-[repeat(auto-fill,_minmax(24rem,1fr))] gap-[1.5rem]  w-full h-full">

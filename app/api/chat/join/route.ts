@@ -1,5 +1,6 @@
+import { pusherServer } from "@/lib/pusher";
 import { db } from "@/lib/redis";
-import { decrypt } from "@/lib/utils";
+import { decrypt, toPusherKey } from "@/lib/utils";
 import { CreateChat, joinChatValidator } from "@/lib/validator";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
@@ -18,7 +19,10 @@ export const POST = async (req: NextRequest) => {
     const validatedCode = joinChatValidator.parse(body);
 
     // chat exists
-    const chatId = await db.hget(`chat:public:${validatedCode.code}`, "chatId");
+    const chatId = (await db.hget(
+      `chat:public:${validatedCode.code}`,
+      "chatId"
+    )) as string;
     if (!chatId) {
       return new Response("unable to join chat", { status: 500 });
     }
@@ -36,10 +40,6 @@ export const POST = async (req: NextRequest) => {
     }
 
     // check if already in chat
-    // const isMember = await db.sismember(`mem_list:${chatId}`, session.user.id);
-    // if (isMember) {
-    //   return new Response("already a memeber", { status: 500 });
-    // }
 
     const isMemberH = await db.hmget(`chat:members:${chatId}`, session.user.id);
     if (isMemberH) {
@@ -59,14 +59,25 @@ export const POST = async (req: NextRequest) => {
       joined: Date.now(),
     };
 
+    pusherServer.trigger(
+      toPusherKey(`member:list:${chatId}`),
+      "revalidate-member-list",
+      ""
+    );
+
+    pusherServer.trigger(
+      toPusherKey(`chatlist:${session.user.id}`),
+      "chatlist-revalidate",
+      ""
+    );
     await db.hset(`chat:members:${chatId}`, { [session.user.id]: newMember });
-    await db.zadd(`chatlist:${session.user.id}`, {
-      score: Date.now(),
-      member: JSON.stringify({ code: validatedCode.code, id: chatId }),
+    await db.hset(`chatlist:${session.user.id}`, {
+      [chatId]: { code: validatedCode.code, id: chatId, joined: Date.now() },
     });
 
     return new Response("OK");
   } catch (err) {
+    console.log(err);
     return new Response("unable to join chat", { status: 500 });
   }
 };

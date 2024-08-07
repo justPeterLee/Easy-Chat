@@ -4,18 +4,38 @@ import Link from "next/link";
 import { Button } from "../ui/Button";
 import Image from "next/image";
 import { GCModal } from "../modal/chatModal/GCModal";
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { DeleteUserModal, ViewUserModal } from "../modal/userModal/UserModal";
-import { cn } from "@/lib/utils";
-import { Modal } from "../modal/Backdrop";
+import { cn, toPusherKey } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { pusherClient } from "@/lib/pusher";
+import axios from "axios";
+
 export function PubChatList({
   chatList,
+  userId,
 }: {
   chatList: PublicChatList | null[];
+  userId: string;
 }) {
   const [modalState, setModalState] = useState(false);
 
+  // useEffect(() => {
+  //   pusherClient.subscribe(toPusherKey(`chat:list:${userId}`));
+
+  //   const chatlistRevalidateHandler = async () => {
+  //     console.log("test");
+  //     const data = await axios.get(`/api/chat/chatlist/${userId}`);
+  //     console.log("pusher: ", data.data.all);
+  //     console.log("props: ", chatList);
+  //   };
+  //   pusherClient.bind("chatlist-revalidate", chatlistRevalidateHandler);
+
+  //   return () => {
+  //     pusherClient.unsubscribe(toPusherKey(`chat:list:${userId}`));
+  //     pusherClient.unbind("chatlist-revalidate", chatlistRevalidateHandler);
+  //   };
+  // }, []);
   return (
     <>
       {modalState && (
@@ -70,7 +90,7 @@ export function UserTab() {
       <div
         ref={parentRef}
         className={cn(
-          "w-[16rem] flex gap-3 text-neutral-300 hover:bg-neutral-700 duration-100 cursor-pointer px-3 py-2 my-1 fixed bottom-0 bg-[#191919]",
+          "w-full flex gap-3 text-neutral-300 hover:bg-neutral-700 duration-100 cursor-pointer px-3 py-2 my-1 absolute bottom-0 bg-[#191919]",
           { "bg-neutral-700": showUserModal }
         )}
         onClick={() => {

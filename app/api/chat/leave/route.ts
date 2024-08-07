@@ -1,7 +1,8 @@
+import { pusherServer } from "@/lib/pusher";
 import { db, fetchRedis } from "@/lib/redis";
+import { toPusherKey } from "@/lib/utils";
 import { deleteChatValidator } from "@/lib/validator";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
-import axios from "axios";
 import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
 
@@ -38,14 +39,23 @@ export const POST = async (req: NextRequest) => {
     }
 
     // delete from chatlist
-    await db.zrem(`chatlist:${session.user.id}`, {
-      code: body.chatCode,
-      id: body.chatId,
-    });
+    await db.hdel(`chatlist:${session.user.id}`, `${validBody.chatId}`);
 
     // delete self from chat member list
-    await db.hdel(`chat:members:${body.chatId}`, session.user.id);
+    await db.hdel(`chat:members:${validBody.chatId}`, session.user.id);
 
+    pusherServer.trigger(
+      toPusherKey(`member:list:${validBody.chatId}`),
+      "revalidate-member-list",
+      ""
+    );
+
+    console.log(session.user.id);
+    pusherServer.trigger(
+      toPusherKey(`chat:list:${session.user.id}`),
+      "chatlist-revalidate",
+      ""
+    );
     return new Response("OK", { status: 200 });
   } catch (err) {
     return new Response("could not leave chat", { status: 500 });

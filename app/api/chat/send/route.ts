@@ -1,4 +1,6 @@
+import { pusherServer } from "@/lib/pusher";
 import { db } from "@/lib/redis";
+import { toPusherKey } from "@/lib/utils";
 import { Message, messageValidator } from "@/lib/validator";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { nanoid } from "nanoid";
@@ -24,8 +26,6 @@ export const POST = async (req: NextRequest) => {
       return new Response("unauthorized", { status: 401 });
     }
 
-    console.log(isMember);
-
     // verify no mute
     if (isMember[session.user.id].isMute || isMember[session.user.id].isBan) {
       return new Response("muted", { status: 401 });
@@ -42,8 +42,14 @@ export const POST = async (req: NextRequest) => {
     // validate final data
     const vaildMessage = messageValidator.parse(messageData);
 
-    // add message to db
+    // notify connect chat
+    pusherServer.trigger(
+      toPusherKey(`chat:${chatId}`),
+      "incoming-message",
+      vaildMessage
+    );
 
+    // add message to db
     await db.zadd(`chat:messages:${chatId}`, {
       score: timeStamp,
       member: JSON.stringify(vaildMessage),
@@ -51,6 +57,6 @@ export const POST = async (req: NextRequest) => {
 
     return new Response("OK");
   } catch (err) {
-    return new Response("unable to create account", { status: 500 });
+    return new Response(`unable to send message: ${err}`, { status: 500 });
   }
 };

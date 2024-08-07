@@ -1,4 +1,6 @@
+import { pusherServer } from "@/lib/pusher";
 import { db } from "@/lib/redis";
+import { toPusherKey } from "@/lib/utils";
 import { userActionValidator } from "@/lib/validator";
 import { authOption } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
@@ -41,6 +43,11 @@ export const POST = async (req: NextRequest) => {
       isBan: newBanState,
     };
 
+    pusherServer.trigger(
+      toPusherKey(`member:info:${newUserData.id}`),
+      `member-action-${newUserData.id}`,
+      newUserData
+    );
     await db.hmset(`chat:members:${validUserData.chatId}`, {
       [validUserData.userId]: newUserData,
     });

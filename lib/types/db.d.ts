@@ -1,6 +1,13 @@
 // ----- Chat Info -----
 
 // public chat
+interface PubChat {
+  code: string;
+  id: number;
+  joinded: number;
+}
+type PubChatList = PubChat[];
+
 interface PublicChat {
   title: string;
   chatId: number;
